@@ -16,7 +16,7 @@ INDI_PARAMS = ['ID', 'NAME', 'SEX', 'BIRT', 'DEAT', 'FAMC', 'FAMS']
 FAM_PARAMS =  ['ID', 'HUSB', 'WIFE', 'CHIL', 'MARR', 'DIV']
 
 MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
-MONTH_NUM = {month : str(i).zfill(2) for i, month in enumerate(MONTHS)}
+MONTH_NUM = {month : str(i+1).zfill(2) for i, month in enumerate(MONTHS)}
 
 class GED_Node:
   # TODO: validate args based on tag
