@@ -205,7 +205,7 @@ if __name__ == '__main__':
   
   fam_table = PrettyTable()
   fam_table.field_names = ['ID', 'Married', 'Divorced', 'Husband ID', 'Husband Name', 'Wife ID', 'Wife Name', 'Children']
-  for fam_id in fams:
+  for fam_id in sorted(fams.keys()):
     fam_data = fams[fam_id]
     fam_table.add_row([fam_id, fam_data['MARR'] or 'NA', fam_data['DIV'] or 'NA', 
                        fam_data['HUSB'] or 'NA', indis[fam_data['HUSB']]['NAME'] or 'NA', 
@@ -214,7 +214,7 @@ if __name__ == '__main__':
   
   indi_table = PrettyTable()
   indi_table.field_names = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Alive', 'Death', 'Child', 'Spouse']
-  for indi_id in indis:
+  for indi_id in sorted(indis.keys()):
     indi_data = indis[indi_id]
     
     children = []
