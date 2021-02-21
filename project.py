@@ -1,6 +1,7 @@
 import os
 from prettytable import PrettyTable
 import argparse
+from datetime import datetime
 
 SUPPORTED_TAGS = {
   'comment': ['NOTE', 'HEAD', 'TRLR'],
@@ -178,6 +179,12 @@ def get_fams(root_nodes):
       fams[fam_id] = fam_data
   return fams
 
+def get_age(birthday, today):
+  ans = today.year - birthday.year
+  if (today.month, today.day) < (birthday.month, birthday.day):
+    ans -= 1
+  return ans
+
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description='Parse a GED file to extract individuals and families.')
   parser.add_argument('file', type=str, help='the GED file')
@@ -194,6 +201,7 @@ if __name__ == '__main__':
   fams = get_fams(root_nodes)
   indis = get_indis(root_nodes)
   
+  today = datetime.now()
   
   fam_table = PrettyTable()
   fam_table.field_names = ['ID', 'Married', 'Divorced', 'Husband ID', 'Husband Name', 'Wife ID', 'Wife Name', 'Children']
@@ -219,10 +227,13 @@ if __name__ == '__main__':
         else:
           spouse = fams[fam_id]['HUSB'] 
     
-    age = 'NA'
+    age = None
+    if indi_data['BIRT'] is not None:
+      birthday = datetime.strptime(indi_data['BIRT'], '%Y-%m-%d')
+      age = get_age(birthday, today)
     alive = indi_data['DEAT'] is None
     indi_table.add_row([indi_id, indi_data['NAME'] or 'NA', indi_data['SEX'] or 'NA', 
-                        indi_data['BIRT'] or 'NA', age, alive, indi_data['DEAT'] or 'NA', 
+                        indi_data['BIRT'] or 'NA', age or 'NA', alive, indi_data['DEAT'] or 'NA', 
                         children if len(children) > 0 else 'NA', spouse or 'NA'])
   
   print(indi_table)
