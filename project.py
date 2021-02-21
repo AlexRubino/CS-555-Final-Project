@@ -1,7 +1,6 @@
 import os
 from prettytable import PrettyTable
-
-GED_FILE = 'Project01.ged'
+import argparse
 
 SUPPORTED_TAGS = {
   'comment': ['NOTE', 'HEAD', 'TRLR'],
@@ -180,10 +179,15 @@ def get_fams(root_nodes):
   return fams
 
 if __name__ == '__main__':
-  if not os.path.isfile(GED_FILE):
-    print(f'Error: missing file {GED_FILE} in cwd')
+  parser = argparse.ArgumentParser(description='Parse a GED file to extract individuals and families.')
+  parser.add_argument('file', type=str, help='the GED file')
   
-  with open(GED_FILE) as f:
+  args = parser.parse_args()
+  
+  if not os.path.isfile(args.file):
+    print(f'Error: missing file {args.file} in cwd')
+  
+  with open(args.file) as f:
     lines = f.readlines()
 
   root_nodes = parse_ged_lines(lines)
