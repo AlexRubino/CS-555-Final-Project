@@ -3,6 +3,8 @@ from prettytable import PrettyTable
 import argparse
 from datetime import datetime
 import logging
+import validation as validation
+import utils as utils
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -188,40 +190,6 @@ def parse_ged_data(lines):
   indis = get_indis(root_nodes)
   return fams, indis
 
-'''
-  Returns a list pairs:
-  [(id1, r1), (id2, r2), ...]
-  
-  Where the first item in the pair is the id of an
-  invalid family and the second item is the reason.
-  
-  Note that a given family id may appear more than
-  once if multiple invalid reasons are found.
-'''
-def validate_family_data(fams, indis):
-  ret_data = []
-  
-  for fid in fams:
-    if fams[fid]['MARR'] is not None:
-      marriage = parse_date(fams[fid]['MARR'])
-      
-      for cid in fams[fid]['CHIL']:
-        if indis[cid]['BIRT'] is not None:
-          birth = parse_date(indis[cid]['BIRT'])
-          if birth < marriage:
-            ret_data.append((fid, f'Child id={cid} has birthdate before marriage'))
-  
-  return ret_data
-  
-def parse_date(str_date):
-  return datetime.strptime(str_date, '%Y-%m-%d')
-
-def get_age(birthday, today):
-  ans = today.year - birthday.year
-  if (today.month, today.day) < (birthday.month, birthday.day):
-    ans -= 1
-  return ans
-
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description='Parse a GED file to extract individuals and families.')
   parser.add_argument('file', type=str, help='the GED file')
@@ -265,8 +233,8 @@ if __name__ == '__main__':
     
     age = None
     if indi_data['BIRT'] is not None:
-      birthday = parse_date(indi_data['BIRT'])
-      age = get_age(birthday, today)
+      birthday = utils.parse_date(indi_data['BIRT'])
+      age = utils.get_age(birthday, today)
     alive = indi_data['DEAT'] is None
     indi_table.add_row([indi_id, indi_data['NAME'] or 'NA', indi_data['SEX'] or 'NA', 
                         indi_data['BIRT'] or 'NA', age or 'NA', alive, indi_data['DEAT'] or 'NA', 

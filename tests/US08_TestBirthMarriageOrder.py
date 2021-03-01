@@ -1,4 +1,7 @@
+import sys
+sys.path.append('../')
 import unittest
+import validation as validation
 import project as proj
 
 class TestBirthMarriageOrder(unittest.TestCase):
@@ -30,19 +33,19 @@ class TestBirthMarriageOrder(unittest.TestCase):
     def test_ok_order(self):
         ged = self.generate_fam_1(marriage='01 JAN 2010', birth='01 JAN 2011')
         fams, indis = proj.parse_ged_data(ged)
-        output = proj.validate_family_data(fams, indis)
+        output = validation.validate_birth_marriage_order(fams, indis)
         self.assertEqual(output, [])
 
     def test_bad_order(self):
         ged = self.generate_fam_1(marriage='01 JAN 2010', birth='01 JAN 2009')
         fams, indis = proj.parse_ged_data(ged)
-        output = proj.validate_family_data(fams, indis)
+        output = validation.validate_birth_marriage_order(fams, indis)
         self.assertEqual(output, [('F1', 'Child id=I1_3 has birthdate before marriage')])
 
     def test_same_date(self):
         ged = self.generate_fam_1(marriage='01 JAN 2010', birth='01 JAN 2010')
         fams, indis = proj.parse_ged_data(ged)
-        output = proj.validate_family_data(fams, indis)
+        output = validation.validate_birth_marriage_order(fams, indis)
         self.assertEqual(output, [])
         
     def test_multi_family(self):
@@ -50,7 +53,7 @@ class TestBirthMarriageOrder(unittest.TestCase):
         ged2 = self.generate_fam_1(marriage='01 JAN 2010', birth='01 JAN 2009', id=2)
         
         fams, indis = proj.parse_ged_data(ged1 + ged2)
-        output = proj.validate_family_data(fams, indis)
+        output = validation.validate_birth_marriage_order(fams, indis)
         bad_fams = [o[0] for o in output]
         
         self.assertTrue('F2' in bad_fams)
@@ -61,7 +64,7 @@ class TestBirthMarriageOrder(unittest.TestCase):
         ged2 = self.generate_fam_1(marriage='01 JAN 2010', birth='01 JAN 2009', id=2)
         
         fams, indis = proj.parse_ged_data(ged1 + ged2)
-        output = proj.validate_family_data(fams, indis)
+        output = validation.validate_birth_marriage_order(fams, indis)
         bad_fams = [o[0] for o in output]
         
         self.assertTrue('F1' in bad_fams)
