@@ -2,6 +2,11 @@ import os
 from prettytable import PrettyTable
 import argparse
 from datetime import datetime
+import logging
+import validation as validation
+import utils as utils
+
+logging.getLogger().setLevel(logging.INFO)
 
 SUPPORTED_TAGS = {
   'comment': ['NOTE', 'HEAD', 'TRLR'],
@@ -30,7 +35,7 @@ class GED_Node:
   def prnt(self, level=0):
     args = ','.join(self.args)
     ls = '\t' * level
-    print(f'{ls}{{ {self.level}.{self.tag}[{args}] }}')
+    logging.debug(f'{ls}{{ {self.level}.{self.tag}[{args}] }}')
     for c in self.children:
       c.prnt(level+1)
       
@@ -57,10 +62,10 @@ class GED_Node:
       return None
     else:
       if len(self.args) == 0:
-        print(f'Error: {self.type} node has 0 arguments where 1 was expected')
+        logging.error(f'{self.type} node has 0 arguments where 1 was expected')
         return None
       if len(self.args) > 1:
-        print(f'Warning: {self.type} node has {len(self.args)} arguments where 1 was expected')
+        logging.warning(f'{self.type} node has {len(self.args)} arguments where 1 was expected')
       return self.args[0]
   
 '''
@@ -77,14 +82,14 @@ Which could be
 We assume the latter (2) is the intention.
 '''
 
-def parse_ged_lines(lines):
+def build_ged_tree(lines):
   nodes = []
   for line in lines:
     line = line.strip()
     data = line.split()
     
     if len(data) < 2:
-      print(f'Warning: invalid data \'{line}\'')
+      logging.warning(f'invalid data \'{line}\'')
       continue
     
     level = data[0]
@@ -108,9 +113,9 @@ def parse_ged_lines(lines):
       args = data[2:]
     
     if tag is None or args is None:
-      print(f'Warning: invalid data \'{line}\'')
+      logging.warning(f'invalid data \'{line}\'')
     elif not valid:
-      print(f'Warning: invalid tag \'{line}\'')
+      logging.warning(f'invalid tag \'{line}\'')
     else:
       nodes.append(GED_Node(int(level), tag, args))
   
@@ -122,7 +127,7 @@ def parse_ged_lines(lines):
     
     if len(stk) > 0:
       if stk[-1].level != nd.level - 1:
-        print(f'Warning: level {nd.level} line follows level {stk[-1].level} level line')
+        logging.warning(f'level {nd.level} line follows level {stk[-1].level} level line')
       stk[-1].add_child(nd)
     else:
       root_nodes.append(nd)
@@ -137,7 +142,7 @@ def get_indis(root_nodes):
     if root.tag == 'INDI':
       indi_id = root.get_arg()
       if indi_id in indis:
-        print(f'Error: duplicate INDI id {indi_id}')
+        logging.error(f'duplicate INDI id {indi_id}')
         continue
       
       indi_data = { param: None for param in INDI_PARAMS }
@@ -161,7 +166,7 @@ def get_fams(root_nodes):
     if root.tag == 'FAM':
       fam_id = root.get_arg()
       if fam_id in fams:
-        print(f'Error: duplicate FAM id {fam_id}')
+        logging.error(f'duplicate FAM id {fam_id}')
         continue
         
       fam_data = { param: None for param in FAM_PARAMS }
@@ -179,11 +184,11 @@ def get_fams(root_nodes):
       fams[fam_id] = fam_data
   return fams
 
-def get_age(birthday, today):
-  ans = today.year - birthday.year
-  if (today.month, today.day) < (birthday.month, birthday.day):
-    ans -= 1
-  return ans
+def parse_ged_data(lines):
+  root_nodes = build_ged_tree(lines)
+  fams = get_fams(root_nodes)
+  indis = get_indis(root_nodes)
+  return fams, indis
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description='Parse a GED file to extract individuals and families.')
@@ -192,14 +197,13 @@ if __name__ == '__main__':
   args = parser.parse_args()
   
   if not os.path.isfile(args.file):
-    print(f'Error: missing file {args.file} in cwd')
+    logging.critical(f'missing file {args.file} in cwd')
+    exit(1)
   
   with open(args.file) as f:
     lines = f.readlines()
 
-  root_nodes = parse_ged_lines(lines)
-  fams = get_fams(root_nodes)
-  indis = get_indis(root_nodes)
+  fams, indis = parse_ged_data(lines)
   
   today = datetime.now()
   
@@ -229,8 +233,8 @@ if __name__ == '__main__':
     
     age = None
     if indi_data['BIRT'] is not None:
-      birthday = datetime.strptime(indi_data['BIRT'], '%Y-%m-%d')
-      age = get_age(birthday, today)
+      birthday = utils.parse_date(indi_data['BIRT'])
+      age = utils.get_age(birthday, today)
     alive = indi_data['DEAT'] is None
     indi_table.add_row([indi_id, indi_data['NAME'] or 'NA', indi_data['SEX'] or 'NA', 
                         indi_data['BIRT'] or 'NA', age or 'NA', alive, indi_data['DEAT'] or 'NA', 
