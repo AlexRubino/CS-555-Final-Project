@@ -1,6 +1,32 @@
 import utils as utils
 
 '''
+  Implements US06
+  Sprint 1
+  Zack Schieberl
+  A married couple cannot get divorced after one of them dies
+'''
+def validate_divorce_before_death(fams, indis):
+  ret_data = []
+  
+  for fid in fams:
+    if fams[fid]['DIV'] is not None:
+      divorce_date = utils.parse_date(fams[fid]['DIV'])
+      husband_id = fams[fid]['HUSB']
+      wife_id = fams[fid]['WIFE']
+
+      if indis[husband_id]['DEAT'] is not None:
+        death_date = utils.parse_date(indis[husband_id]['DEAT'])
+        if death_date < divorce_date:
+          ret_data.append((husband_id, f'Individual id={husband_id} has a divorce after his death'))
+      if indis[wife_id]['DEAT'] is not None:
+        death_date = utils.parse_date(indis[wife_id]['DEAT'])
+        if death_date < divorce_date:
+          ret_data.append((wife_id, f'Individual id={wife_id} has a divorce after her death'))
+  
+  return ret_data
+
+'''
   Implements US08
   
   Returns a list pairs:
