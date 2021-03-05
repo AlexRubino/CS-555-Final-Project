@@ -1,4 +1,7 @@
+import sys
+sys.path.append('../')
 import unittest
+import validation as validation
 import project as proj
 
 class TestMarriageBeforeDeath(unittest.TestCase):

@@ -158,9 +158,16 @@ def validate_marriage_after_fourteen(fams, indis):
             husbandID, wifeID = fams[fid]['HUSB'], fams[fid]['WIFE']
             husband_birth, wife_birth = indis[husbandID]['BIRT'], indis[wifeID]['BIRT']
 
+            husband_birth = utils.parse_date(husband_birth)
+            wife_birth = utils.parse_date(wife_birth)
+            
             # both partners are born
             if (husband_birth and wife_birth is not None):
-                if (husband_birth + 14) and (wife_birth + 14) < marriage_date:
+              # if husband + wife were 14 and above when married
+              husband_marriage_age = utils.get_age(husband_birth, marriage_date)
+              wife_marriage_age = utils.get_age(wife_birth, marriage_date)
+
+              if (husband_marriage_age < 14) or (wife_marriage_age < 14):
                     invalid_marriages.append((fid, f'Family id={fid} has marriage before age 14'))
 
     return invalid_marriages
