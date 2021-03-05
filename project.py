@@ -72,13 +72,10 @@ class GED_Node:
 Important assumption: "HEAD", "TRLR", and "NOTE" are not
 allowed to be individual nor family IDs. This is because
 it would create ambiguity in how to interpret:
-
 0 NOTE INDI
-
 Which could be
   1. An individual with ID = "NOTE"
   2. A note with comment = "INDI"
-
 We assume the latter (2) is the intention.
 '''
 
