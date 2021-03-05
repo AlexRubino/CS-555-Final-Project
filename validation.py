@@ -12,16 +12,16 @@ import utils as utils
 def validate_birth_before_marriage(fams, indis):
   return_data = []
 
-  for fid in fams:
-      if fams[fid]['MARR'] is not None:
-        marriage_day = utils.parse_date(fams[fid]['MARR'])
+  for cid in indis:
+    if indis[cid]['BIRT'] is not None:
+      birthday = utils.parse_date(indis[cid]['BIRT'])
 
-        for cid in fams[fid]['CHIL']:
-          if indis[cid]['BIRT'] is not None:
-            birthday = utils.parse_date(indis[cid]['BIRT'])
+      for fid in fams:
+        if fams[fid]['MARR'] is not None:
+          marriage_day = utils.parse_date(fams[fid]['MARR'])
 
-            if marriage_day < birthday:
-              return_data.append((cid, f'Person id = {cid} has marriage before birth.'))
+          if marriage_day < birthday:
+            return_data.append((cid, f'Person id = {cid} has marriage before birth.'))
       
   return return_data
   
@@ -40,8 +40,10 @@ def validate_birth_before_death(fams, indis):
   for cid in indis:
     if indis[cid]['BIRT'] is not None:
       birthday = utils.parse_date(indis[cid]['BIRT'])
+
       if indis[cid]['DEAT'] is not None:
         death_day = utils.parse_date(indis[cid]['DEAT'])
+
         if death_day < birthday:
           return_data.append((cid, f'Person id = {cid} has death before birth.'))
       

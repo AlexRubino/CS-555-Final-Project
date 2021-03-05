@@ -31,7 +31,7 @@ class TestBirthBeforeDeath(unittest.TestCase):
         ]
     
     def test1(self):
-        ged = self.generate_fam_1(birth='01 JAN 2020', death='15 JAN 2021')
+        ged = self.generate_fam_1(birth='01 JAN 1900', death='15 JAN 2020')
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_birth_before_death(fams, indis)
         self.assertEqual(output, [])
