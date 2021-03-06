@@ -70,7 +70,7 @@ class TestMarriageBeforeDeath(unittest.TestCase):
         ged = self.generate_fam_2(
             husband = ('01 JAN 2000',None),
             wife = ('01 JAN 2001',None),
-            marriage = ('01 JAN 2021',None)
+            marriage = ('01 JAN 2021','01 JAN 2031')
         )
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_marriage_before_divorce(fams, indis)
@@ -85,24 +85,36 @@ class TestMarriageBeforeDeath(unittest.TestCase):
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_marriage_before_divorce(fams, indis)
         self.assertEqual(output, [])
-'''
-    def test_married_after_death_1(self):
-        ged = self.generate_fam_1(marriage='01 JAN 2010', birth='01 JAN 1950', divorce='05 JAN 2020', death='01 JAN 1970')
-        fams, indis = proj.parse_ged_data(ged)
-        output = proj.marriage_before_death(fams, indis)
-        self.assertEqual(output, [('F1', 'Family id=F1 has marriage after death of partner')])
 
-    def test_married_after_death_2(self):
-        ged = self.generate_fam_1(marriage='01 JAN 2010', birth='01 JAN 1950', divorce='05 JAN 2020', death='01 JAN 2009')
+    def test_marriage_after_divorce_1(self):
+        ged = self.generate_fam_2(
+            husband = ('01 JAN 2000',None),
+            wife = ('01 JAN 2001','01 JAN 2080'),
+            marriage = ('01 JAN 2041','01 MAR 2020')
+        )
         fams, indis = proj.parse_ged_data(ged)
-        output = proj.marriage_before_death(fams, indis)
-        self.assertEqual(output, [('F1', 'Family id=F1 has marriage after death of partner')])
+        output = validation.validate_marriage_before_divorce(fams, indis)
+        self.assertEqual(output, [('F1', 'Family id=F1 has marriage after divorce')])
 
-    def test_married_after_death_3(self):
-        ged = self.generate_fam_1(marriage='01 JAN 2010', birth='01 JAN 1950', divorce='05 JAN 2020', death='31 DEC 2009')
+    def test_marriage_after_divorce_2(self):
+        ged = self.generate_fam_2(
+            husband = ('01 JAN 2000',None),
+            wife = ('01 JAN 2001','01 JAN 2080'),
+            marriage = ('01 JAN 2021','01 MAR 2020')
+        )
         fams, indis = proj.parse_ged_data(ged)
-        output = proj.marriage_before_death(fams, indis)
-        self.assertEqual(output, [('F1', 'Family id=F1 has marriage after death of partner')])
-'''
+        output = validation.validate_marriage_before_divorce(fams, indis)
+        self.assertEqual(output, [('F1', 'Family id=F1 has marriage after divorce')])
+
+    def test_marriage_after_divorce_3(self):
+        ged = self.generate_fam_2(
+            husband = ('01 JAN 2000',None),
+            wife = ('01 JAN 2001','01 JAN 2080'),
+            marriage = ('01 JAN 2070','01 MAR 2060')
+        )
+        fams, indis = proj.parse_ged_data(ged)
+        output = validation.validate_marriage_before_divorce(fams, indis)
+        self.assertEqual(output, [('F1', 'Family id=F1 has marriage after divorce')])
+
 if __name__ == '__main__':
     unittest.main() 
