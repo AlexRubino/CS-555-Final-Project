@@ -30,3 +30,7 @@ def get_age(birthday, today=None):
   if (today.month, today.day) < (birthday.month, birthday.day):
     ans -= 1
   return ans
+
+def date_difference(date1, date2):
+  difference = abs(date1 - date2)
+  return difference
