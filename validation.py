@@ -37,16 +37,16 @@ def validate_dates_before_current(fams, indis):
 def validate_birth_before_marriage(fams, indis):
   return_data = []
 
-  for cid in indis:
-    if indis[cid]['BIRT'] is not None:
-      birthday = utils.parse_date(indis[cid]['BIRT'])
+  for iid in indis:
+    if indis[iid]['BIRT'] is not None:
+      birthday = utils.parse_date(indis[iid]['BIRT'])
 
-      for fid in fams:
+      for fid in indis[iid]['FAMS']:
         if fams[fid]['MARR'] is not None:
           marriage_day = utils.parse_date(fams[fid]['MARR'])
 
           if marriage_day < birthday:
-            return_data.append((cid, f'Person id = {cid} has marriage before birth.'))
+            return_data.append((iid, f'Person id={iid} has marriage before birth.'))
 
   return return_data
 
@@ -70,7 +70,7 @@ def validate_birth_before_death(fams, indis):
         death_day = utils.parse_date(indis[cid]['DEAT'])
 
         if death_day < birthday:
-          return_data.append((cid, f'Person id = {cid} has death before birth.'))
+          return_data.append((cid, f'Person id={cid} has death before birth.'))
 
   return return_data
 
@@ -160,8 +160,8 @@ def validate_divorce_before_death(fams, indis):
   for fid in fams:
     if fams[fid]['DIV'] is not None:
       divorce_date = utils.parse_date(fams[fid]['DIV'])
-      husband_id = fams[fid]['HUSB']
-      wife_id = fams[fid]['WIFE']
+      husband_id=fams[fid]['HUSB']
+      wife_id=fams[fid]['WIFE']
 
       if indis[husband_id]['DEAT'] is not None:
         death_date = utils.parse_date(indis[husband_id]['DEAT'])
@@ -232,7 +232,7 @@ def validate_marriage_before_child(fams, indis):
         if indis[cid]['BIRT'] is not None:
           birth = utils.parse_date(indis[cid]['BIRT'])
           if birth < marriage:
-            ret_data.append((fid, f'Child id={cid} has birthdate before marriage'))
+            ret_data.append((fid, f'Child id={cid} has birthdate before marriage of parents'))
 
   return ret_data
 

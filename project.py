@@ -5,10 +5,11 @@ from datetime import datetime
 import logging
 import validation as validation
 import utils as utils
+import sys
 
 logging.getLogger().setLevel(logging.INFO)
 log_format = "%(levelname)s: %(message)s"
-logging.basicConfig(level='DEBUG', format=log_format)
+logging.basicConfig(stream=sys.stdout, level='DEBUG', format=log_format)
 
 SUPPORTED_TAGS = {
   'comment': ['NOTE', 'HEAD', 'TRLR'],
@@ -224,6 +225,8 @@ def print_tables(fams, indis):
     if indi_data['BIRT'] is not None:
       birthday = utils.parse_date(indi_data['BIRT'])
       age = utils.get_age(birthday)
+      if age < 0:
+        age = None
     alive = indi_data['DEAT'] is None
     indi_table.add_row([indi_id, indi_data['NAME'] or 'NA', indi_data['SEX'] or 'NA', 
                         indi_data['BIRT'] or 'NA', age or 'NA', alive, indi_data['DEAT'] or 'NA', 
@@ -247,3 +250,20 @@ if __name__ == '__main__':
 
   fams, indis = parse_ged_data(lines)
   print_tables(fams, indis)
+
+  for is_indi, id, reason in validation.validate_dates_before_current(fams, indis):
+    logging.error(f'{"INDIVIDUAL" if is_indi else "FAMILY"}: US01: id={id} {reason}')
+  for iid, reason in validation.validate_birth_before_marriage(fams, indis):
+    logging.error(f'INDIVIDUAL: US02: {reason}')
+  for iid, reason in validation.validate_birth_before_death(fams, indis):
+    logging.error(f'INDIVIDUAL: US03: {reason}')
+  for fid, reason in validation.validate_marriage_before_divorce(fams, indis):
+    logging.error(f'FAMILY: US04: {reason}')
+  for fid, reason in validation.validate_marriage_before_death(fams, indis):
+    logging.error(f'FAMILY: US05: {reason}')
+  for fid, reason in validation.validate_divorce_before_death(fams, indis):
+    logging.error(f'FAMILY: US06: {reason}')
+  for iid, reason in validation.validate_reasonable_age(fams, indis):
+    logging.error(f'INDIVIDUAL: US07: {reason}')
+  for fid, reason in validation.validate_marriage_before_child(fams, indis):
+    logging.warning(f'FAMILY: US08: {reason}')
