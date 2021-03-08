@@ -63,4 +63,4 @@ class TestMarriageBeforeDeath(unittest.TestCase):
         self.assertEqual(output, [('F1', 'Family id=F1 has marriage after death of partner')])
 
 if __name__ == '__main__':
-    unittest.main() 
+    unittest.main()

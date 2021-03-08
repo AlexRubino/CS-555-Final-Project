@@ -6,8 +6,8 @@ import datetime
 
 class DatesBeforeCurrent(unittest.TestCase):
     '''
-        Helper function which generates a minimal family of two parents 
-        and a child with a given marriage date and child birthdate. 
+        Helper function which generates a minimal family of two parents
+        and a child with a given marriage date and child birthdate.
 
         Optionally takes in the family ID (which is used to generate
         individual IDs as well).

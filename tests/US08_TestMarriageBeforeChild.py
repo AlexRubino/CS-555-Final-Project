@@ -4,9 +4,9 @@ import project as proj
 
 class MarriageBeforeChild(unittest.TestCase):
     '''
-        Helper function which generates a minimal family of two parents 
-        and a child with a given marriage date and child birthdate. 
-        
+        Helper function which generates a minimal family of two parents
+        and a child with a given marriage date and child birthdate.
+
         Optionally takes in the family ID (which is used to generate
         individual IDs as well).
     '''
@@ -27,7 +27,7 @@ class MarriageBeforeChild(unittest.TestCase):
             '1 MARR',
             f'2 DATE {marriage}'
         ]
-    
+
     def test_ok_order(self):
         ged = self.generate_fam_1(marriage='01 JAN 2010', birth='01 JAN 2011')
         fams, indis = proj.parse_ged_data(ged)
@@ -45,26 +45,26 @@ class MarriageBeforeChild(unittest.TestCase):
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_marriage_before_child(fams, indis)
         self.assertEqual(output, [])
-        
+
     def test_multi_family(self):
         ged1 = self.generate_fam_1(marriage='01 JAN 2000', birth='02 JAN 2000', id=1)
         ged2 = self.generate_fam_1(marriage='01 JAN 2010', birth='01 JAN 2009', id=2)
-        
+
         fams, indis = proj.parse_ged_data(ged1 + ged2)
         output = validation.validate_marriage_before_child(fams, indis)
         bad_fams = [o[0] for o in output]
-        
+
         self.assertTrue('F2' in bad_fams)
         self.assertEqual(len(bad_fams), 1)
 
     def test_multi_bad_family(self):
         ged1 = self.generate_fam_1(marriage='01 JAN 2001', birth='02 JAN 2000', id=1)
         ged2 = self.generate_fam_1(marriage='01 JAN 2010', birth='01 JAN 2009', id=2)
-        
+
         fams, indis = proj.parse_ged_data(ged1 + ged2)
         output = validation.validate_marriage_before_child(fams, indis)
         bad_fams = [o[0] for o in output]
-        
+
         self.assertTrue('F1' in bad_fams)
         self.assertTrue('F2' in bad_fams)
         self.assertEqual(len(bad_fams), 2)

@@ -131,13 +131,13 @@ def validate_marriage_before_death(fams, indis):
         # if wife has died
         if wifeDeath is not None:
           wifeDeath = utils.parse_date(wifeDeath)
-          # add wife's death date to list of dead partners 
+          # add wife's death date to list of dead partners
           dead_partners.append(wifeDeath)
 
         # if husband has died
         if husbandDeath is not None:
           husbandDeath = utils.parse_date(husbandDeath)
-          # add husband's death date to list of dead partners 
+          # add husband's death date to list of dead partners
           dead_partners.append(husbandDeath)
 
         # find who died first (guarenteed at least one death between partners)
@@ -271,3 +271,52 @@ def validate_marriage_after_fourteen(fams, indis):
         invalid_marriages.append((fid, f'Family id={fid} has marriage before age 14'))
 
     return invalid_marriages
+
+'''
+  Implements US11: No bigamy
+
+  Marriages are terminated by either divorce or death
+  no unterminated marriages may intersect.
+
+  Marriages without a MARR tag are ignored and marriages
+  without a DIV (or DEAT) tag are assumed to be ongoing.
+'''
+def validate_marriage_before_child(fams, indis):
+  def intersect(int1, int2):
+    a,b = int1
+    c,d = int2
+    return (d is None or d >= a) and (b is None or b >= c)
+
+  ret_data = []
+
+  # for a given id, give a list of their marriages
+  marriages = {iid:[] for iid in indis}
+  for iid in indis:
+    for fid in indis[iid]['FAMS']:
+      if any(fams[fid][tag] is None for tag in ['HUSB','WIFE','MARR']):
+        continue
+
+      begin_date = utils.parse_date(fams[fid]['MARR'])
+      end_date = None
+      if indis[fams[fid]['HUSB']]['DEAT'] is not None:
+        deat = utils.parse_date(indis[fams[fid]['HUSB']]['DEAT'])
+        end_date = (deat if end_date is None else min(end_date, deat))
+      if indis[fams[fid]['WIFE']]['DEAT'] is not None:
+        deat = utils.parse_date(indis[fams[fid]['WIFE']]['DEAT'])
+        end_date = (deat if end_date is None else min(end_date, deat))
+      if fams[fid]['DIV'] is not None:
+        div = utils.parse_date(fams[fid]['DIV'])
+        end_date = (div if end_date is None else min(end_date, div))
+
+      marriages[iid].append((begin_date, end_date))
+    marriages[iid].sort()
+
+    for i in range(len(marriages[iid]) - 1):
+      int1 = marriages[iid][i]
+      int2 = marriages[iid][i+1]
+
+      if intersect(int1, int2):
+        ret_data.append((iid, f'Individual id={iid} was in two or more marriages at the same time'))
+        break
+
+  return ret_data

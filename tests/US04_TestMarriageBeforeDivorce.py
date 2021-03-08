@@ -25,7 +25,7 @@ class TestMarriageBeforeDeath(unittest.TestCase):
             '1 DIV',
             f'2 DATE {divorce}'
         ]
-    
+
     def generate_fam_2(self, husband, wife, marriage, id=1):
         h_birth, h_death = husband
         w_birth, w_death = wife
@@ -115,4 +115,4 @@ class TestMarriageBeforeDeath(unittest.TestCase):
         self.assertEqual(output, [('F1', 'Family id=F1 has marriage after divorce')])
 
 if __name__ == '__main__':
-    unittest.main() 
+    unittest.main()

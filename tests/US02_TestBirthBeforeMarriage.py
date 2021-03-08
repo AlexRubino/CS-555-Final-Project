@@ -4,9 +4,9 @@ import project as proj
 
 class TestBirthBeforeMarriage(unittest.TestCase):
     '''
-        Helper function which generates a minimal family of two parents 
-        and a child with a given marriage date and child birthdate. 
-        
+        Helper function which generates a minimal family of two parents
+        and a child with a given marriage date and child birthdate.
+
         Optionally takes in the family ID (which is used to generate
         individual IDs as well).
     '''
@@ -55,11 +55,11 @@ class TestBirthBeforeMarriage(unittest.TestCase):
         ]
         # This removes all the empty lines
         return [i for i in ret if i]
-    
+
     def test1(self):
         ged = self.generate_fam_2(
-            husband=('01 JAN 2010', '01 JAN 2013'), 
-            wife=('01 JAN 2010', '01 JAN 2013'), 
+            husband=('01 JAN 2010', '01 JAN 2013'),
+            wife=('01 JAN 2010', '01 JAN 2013'),
             marriage=('01 JAN 2011', '01 JAN 2012')
         )
         fams, indis = proj.parse_ged_data(ged)
@@ -68,40 +68,40 @@ class TestBirthBeforeMarriage(unittest.TestCase):
 
     def test2(self):
         ged = self.generate_fam_2(
-            husband=('01 FEB 2010', '01 MAR 2013'), 
-            wife=('01 FEB 2010', '01 MAR 2013'), 
+            husband=('01 FEB 2010', '01 MAR 2013'),
+            wife=('01 FEB 2010', '01 MAR 2013'),
             marriage=('01 JAN 2011', '01 JUN 2012')
-        )        
+        )
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_birth_before_marriage(fams, indis)
         self.assertEqual(output, [])
 
     def test3(self):
         ged = self.generate_fam_2(
-            husband=('01 JAN 2010', '01 MAR 2013'), 
-            wife=('01 FEB 2005', '01 MAR 2013'), 
+            husband=('01 JAN 2010', '01 MAR 2013'),
+            wife=('01 FEB 2005', '01 MAR 2013'),
             marriage=('01 JAN 2010', '01 JUN 2012')
-        )        
+        )
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_birth_before_marriage(fams, indis)
         self.assertEqual(output, [])
 
     def test4(self):
         ged = self.generate_fam_2(
-            husband=('01 JAN 2011', '01 MAR 2013'), 
-            wife=('01 FEB 2009', '01 MAR 2013'), 
+            husband=('01 JAN 2011', '01 MAR 2013'),
+            wife=('01 FEB 2009', '01 MAR 2013'),
             marriage=('01 JAN 2010', '01 JUN 2012')
-        )   
+        )
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_birth_before_marriage(fams, indis)
         self.assertEqual(output, [('I1_1', 'Person id=I1_1 has marriage before birth.')])
-    
+
     def test5(self):
         ged = self.generate_fam_2(
-            husband=('01 JAN 2011', '01 MAR 2013'), 
-            wife=('01 FEB 2010', '01 MAR 2013'), 
+            husband=('01 JAN 2011', '01 MAR 2013'),
+            wife=('01 FEB 2010', '01 MAR 2013'),
             marriage=('01 JAN 2010', '01 JUN 2012')
-        )   
+        )
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_birth_before_marriage(fams, indis)
         self.assertEqual(output, [('I1_1', 'Person id=I1_1 has marriage before birth.'), ('I1_2', 'Person id=I1_2 has marriage before birth.')])
