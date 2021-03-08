@@ -14,7 +14,7 @@ logging.basicConfig(stream=sys.stdout, level='DEBUG', format=log_format)
 SUPPORTED_TAGS = {
   'comment': ['NOTE', 'HEAD', 'TRLR'],
   '0': ['INDI', 'FAM'],
-  '1': ['NAME', 'SEX', 'BIRT', 'DEAT', 'FAMC', 'FAMS', 
+  '1': ['NAME', 'SEX', 'BIRT', 'DEAT', 'FAMC', 'FAMS',
         'MARR', 'HUSB', 'WIFE', 'CHIL', 'DIV', 'NAME'],
   '2': ['DATE']
 }
@@ -43,7 +43,7 @@ class GED_Node:
       c.prnt(level+1)
 
   def add_child(self, nd):
-    self.children.append(nd)  
+    self.children.append(nd)
 
   def needs_date_arg(self):
     return self.tag in DATE_TAGS
@@ -59,7 +59,7 @@ class GED_Node:
     elif self.needs_date_arg():
       for c in self.children:
         if c.tag == 'DATE':
-          d = c.get_arg()        
+          d = c.get_arg()
           if d is not None:
             return d
       return None
@@ -86,6 +86,8 @@ def build_ged_tree(lines):
   nodes = []
   for line in lines:
     line = line.strip()
+    if not line:
+      continue
     data = line.split()
 
     if len(data) < 2:
@@ -201,8 +203,8 @@ def print_tables(fams, indis):
   fam_table.field_names = ['ID', 'Married', 'Divorced', 'Husband ID', 'Husband Name', 'Wife ID', 'Wife Name', 'Children']
   for fam_id in sorted(fams.keys()):
     fam_data = fams[fam_id]
-    fam_table.add_row([fam_id, fam_data['MARR'] or 'NA', fam_data['DIV'] or 'NA', 
-                       fam_data['HUSB'] or 'NA', indis[fam_data['HUSB']]['NAME'] or 'NA', 
+    fam_table.add_row([fam_id, fam_data['MARR'] or 'NA', fam_data['DIV'] or 'NA',
+                       fam_data['HUSB'] or 'NA', indis[fam_data['HUSB']]['NAME'] or 'NA',
                        fam_data['WIFE'] or 'NA', indis[fam_data['WIFE']]['NAME'] or 'NA',
                        fam_data['CHIL'] if len(fam_data['CHIL']) > 0 else 'NA' ])
 
@@ -214,12 +216,12 @@ def print_tables(fams, indis):
     children = []
     spouse = None
     for fam_id in indi_data['FAMS']:
-      children += fams[fam_id]['CHIL'] 
+      children += fams[fam_id]['CHIL']
       if fams[fam_id]['DIV'] is None:
         if indi_data['SEX'] == 'M':
-          spouse = fams[fam_id]['WIFE'] 
+          spouse = fams[fam_id]['WIFE']
         else:
-          spouse = fams[fam_id]['HUSB'] 
+          spouse = fams[fam_id]['HUSB']
 
     age = None
     if indi_data['BIRT'] is not None:
@@ -228,8 +230,8 @@ def print_tables(fams, indis):
       if age < 0:
         age = None
     alive = indi_data['DEAT'] is None
-    indi_table.add_row([indi_id, indi_data['NAME'] or 'NA', indi_data['SEX'] or 'NA', 
-                        indi_data['BIRT'] or 'NA', age or 'NA', alive, indi_data['DEAT'] or 'NA', 
+    indi_table.add_row([indi_id, indi_data['NAME'] or 'NA', indi_data['SEX'] or 'NA',
+                        indi_data['BIRT'] or 'NA', age or 'NA', alive, indi_data['DEAT'] or 'NA',
                         children if len(children) > 0 else 'NA', spouse or 'NA'])
 
   print(indi_table)
