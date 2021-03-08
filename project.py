@@ -187,6 +187,13 @@ def parse_ged_data(lines):
   indis = get_indis(root_nodes)
   return fams, indis
 
+def parse_ged_data(lines):
+  root_nodes = build_ged_tree(lines)
+  fams = get_fams(root_nodes)
+  indis = get_indis(root_nodes)
+  return fams, indis
+
+
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description='Parse a GED file to extract individuals and families.')
   parser.add_argument('file', type=str, help='the GED file')
@@ -201,7 +208,6 @@ if __name__ == '__main__':
     lines = f.readlines()
 
   fams, indis = parse_ged_data(lines)
-  
   today = datetime.now()
   
   fam_table = PrettyTable()
