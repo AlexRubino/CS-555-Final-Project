@@ -2,6 +2,27 @@ import utils as utils
 
 
 '''
+  Implements US01: Dates before current date
+'''
+def validate_dates_before_current(root_nodes):
+  ret_data = []
+  today = utils.current_date()
+  def check_dates(root):
+    if root.tag == 'DATE':
+      sdate = root.get_arg()
+      date = utils.parse_date(sdate)
+      if date > today:
+        ret_data.append((sdate, 'Date is invalid - after present date'))
+
+    for child in root.children:
+      check_dates(child)
+
+  for root in root_nodes:
+    check_dates(root)
+
+  return ret_data
+
+'''
   Implements US02: Birth before marriage
   
   Returns a list pairs:
@@ -186,7 +207,7 @@ def validate_reasonable_age(fams, indis):
   return ret_data
 
 '''
-  Implements US08
+  Implements US08: Birth before marriage of parents
   
   Returns a list pairs:
   [(id1, r1), (id2, r2), ...]
@@ -197,7 +218,7 @@ def validate_reasonable_age(fams, indis):
   Note that a given family id may appear more than
   once if multiple invalid reasons are found.
 '''
-def validate_birth_marriage_order(fams, indis):
+def validate_marriage_before_child(fams, indis):
   ret_data = []
   
   for fid in fams:

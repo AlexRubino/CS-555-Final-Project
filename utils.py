@@ -5,6 +5,9 @@ def parse_date(str_date):
     return datetime.strftime(datetime.now(), '%Y-%m-%d')
   return datetime.strptime(str_date, '%Y-%m-%d')
 
+def stringify_date(date):
+  return date.strftime("%Y-%m-%d")
+
 # Helper function for checking if a date is parsable or not
 # Returns a boolean
 def parseable_date(str_date):
