@@ -25,7 +25,7 @@ def current_date():
 def get_age(birthday, today=None):
   if today is None:
     today = current_date()
-    
+
   ans = today.year - birthday.year
   if (today.month, today.day) < (birthday.month, birthday.day):
     ans -= 1

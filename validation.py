@@ -1,4 +1,5 @@
 import utils as utils
+from datetime import timedelta
 
 '''
   Implements US06
@@ -88,3 +89,49 @@ def validate_birth_marriage_order(fams, indis):
   
   return ret_data
   
+'''
+  Implements US14
+  Sprint 2
+  Zack Schieberl + Ben Mirtchouk
+  A family cannot give birth to sextuplets
+  Only return an error if there are more than 5 kids born on two consecutive days
+'''
+def validate_no_sextuples(fams, indis):
+  birth_buffer = timedelta(days=1)
+
+  ret_data = []
+  for fid in fams:
+    child_births = []
+    for cid in fams[fid]['CHIL']:
+      if indis[cid]['BIRT'] is not None:
+        child_births.append(utils.parse_date(indis[cid]['BIRT']))
+    
+    if child_births == []:
+      continue
+
+    child_births.sort()
+    begin_date = child_births[0]
+    adjacent_date = begin_date + birth_buffer
+    couplet_count = 0
+    adjacent_count = 0
+    for birth in child_births:
+      if birth == begin_date:
+        couplet_count += 1
+      elif birth == adjacent_date:
+        adjacent_count += 1
+      elif birth == adjacent_date + birth_buffer:
+        begin_date = adjacent_date
+        adjacent_date = adjacent_date + birth_buffer
+        couplet_count = adjacent_count
+        adjacent_count = 1
+      else:
+        begin_date = birth
+        adjacent_date = begin_date + birth_buffer
+        couplet_count = 1
+        adjacent_count = 0
+
+      if couplet_count + adjacent_count > 5:
+        ret_data.append((fid, f'Family id={fid} has more than 5 children born together'))
+        break
+  
+  return ret_data
