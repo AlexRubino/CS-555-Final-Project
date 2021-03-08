@@ -94,15 +94,15 @@ WARNING: invalid tag '1 _CURRENT Y'
 | F6 | 2011-06-07 |     NA     |    I10     | Mordechai Thomson |    I9   |  Jimena Sanchez |       NA       |
 | F7 |     NA     |     NA     |    I13     |   Cohen Thomson   |   I14   | Addyson Thomson | ['I10', 'I15'] |
 +----+------------+------------+------------+-------------------+---------+-----------------+----------------+
-ERROR: INDIVIDUAL: US01: id=I1 Birthday 2100-01-01 occurs in the future
-ERROR: FAMILY: US01: id=F1 Marriage 2039-02-02 occurs in the future
-ERROR: INDIVIDUAL: US02: Person id=I1 has marriage before birth.
-ERROR: INDIVIDUAL: US03: Person id=I1 has death before birth.
-ERROR: INDIVIDUAL: US03: Person id=I6 has death before birth.
-ERROR: FAMILY: US04: Family id=F2 has marriage after divorce
-ERROR: FAMILY: US05: Family id=F1 has marriage after death of partner
-ERROR: FAMILY: US05: Family id=F2 has marriage after death of partner
-ERROR: FAMILY: US06: Individual id=I6 has a divorce after her death
-ERROR: INDIVIDUAL: US07: Individual id=I8 is older than 150 years
-ERROR: INDIVIDUAL: US07: Individual id=I11 is older than 150 years
-WARNING: FAMILY: US08: Child id=I11 has birthdate before marriage of parents
+ERROR: INDIVIDUAL: US01: I1: Birthday 2100-01-01 occurs in the future
+ERROR: FAMILY: US01: F1: Marriage 2039-02-02 occurs in the future
+ERROR: INDIVIDUAL: US02: I1: Person id=I1 has marriage before birth.
+ERROR: INDIVIDUAL: US03: I1: Person id=I1 has death before birth.
+ERROR: INDIVIDUAL: US03: I6: Person id=I6 has death before birth.
+ERROR: FAMILY: US04: F2: Family id=F2 has marriage after divorce
+ERROR: FAMILY: US05: F1: Family id=F1 has marriage after death of partner
+ERROR: FAMILY: US05: F2: Family id=F2 has marriage after death of partner
+ERROR: FAMILY: US06: I6: Individual id=I6 has a divorce after her death
+WARNING: INDIVIDUAL: US07: I8: Individual id=I8 is older than 150 years
+WARNING: INDIVIDUAL: US07: I11: Individual id=I11 is older than 150 years
+WARNING: FAMILY: US08: F4: Child id=I11 has birthdate before marriage of parents

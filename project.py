@@ -252,18 +252,18 @@ if __name__ == '__main__':
   print_tables(fams, indis)
 
   for is_indi, id, reason in validation.validate_dates_before_current(fams, indis):
-    logging.error(f'{"INDIVIDUAL" if is_indi else "FAMILY"}: US01: id={id} {reason}')
+    logging.error(f'{"INDIVIDUAL" if is_indi else "FAMILY"}: US01: {id}: {reason}')
   for iid, reason in validation.validate_birth_before_marriage(fams, indis):
-    logging.error(f'INDIVIDUAL: US02: {reason}')
+    logging.error(f'INDIVIDUAL: US02: {iid}: {reason}')
   for iid, reason in validation.validate_birth_before_death(fams, indis):
-    logging.error(f'INDIVIDUAL: US03: {reason}')
+    logging.error(f'INDIVIDUAL: US03: {iid}: {reason}')
   for fid, reason in validation.validate_marriage_before_divorce(fams, indis):
-    logging.error(f'FAMILY: US04: {reason}')
+    logging.error(f'FAMILY: US04: {fid}: {reason}')
   for fid, reason in validation.validate_marriage_before_death(fams, indis):
-    logging.error(f'FAMILY: US05: {reason}')
+    logging.error(f'FAMILY: US05: {fid}: {reason}')
   for fid, reason in validation.validate_divorce_before_death(fams, indis):
-    logging.error(f'FAMILY: US06: {reason}')
+    logging.error(f'FAMILY: US06: {fid}: {reason}')
   for iid, reason in validation.validate_reasonable_age(fams, indis):
-    logging.error(f'INDIVIDUAL: US07: {reason}')
+    logging.warning(f'INDIVIDUAL: US07: {iid}: {reason}')
   for fid, reason in validation.validate_marriage_before_child(fams, indis):
-    logging.warning(f'FAMILY: US08: {reason}')
+    logging.warning(f'FAMILY: US08: {fid}: {reason}')
