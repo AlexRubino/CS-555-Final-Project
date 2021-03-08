@@ -63,8 +63,8 @@ def validate_marriage_before_divorce(fams, indis):
   invalid_marriages = []
 
   for fid in fams:
-    # if married
-    if fams[fid]['MARR'] is not None:
+    # if married and divorced
+    if fams[fid]['MARR'] is not None and fams[fid]['DIV'] is not None:
 
       # parse marriage and divorce date of husband and wife
       marriage_date = utils.parse_date(fams[fid]['MARR'])
@@ -222,26 +222,28 @@ def validate_birth_marriage_order(fams, indis):
     Marriage should be at least 14 years after birth of both spouses (parents must be at least 14 years old)
 '''
 def validate_marriage_after_fourteen(fams, indis):
-    invalid_marriages = []
+  invalid_marriages = []
 
-    for fid in fams:
-        # if married
-        if fams[fid]['MARR'] is not None:
-            marriage_date = utils.parse_date(fams[fid]['MARR'])
+  for fid in fams:
+    # if married
+    if fams[fid]['MARR'] is not None:
+      marriage_date = utils.parse_date(fams[fid]['MARR'])
 
-            husbandID, wifeID = fams[fid]['HUSB'], fams[fid]['WIFE']
-            husband_birth, wife_birth = indis[husbandID]['BIRT'], indis[wifeID]['BIRT']
+      husbandID, wifeID = fams[fid]['HUSB'], fams[fid]['WIFE']
+      husband_birth, wife_birth = indis[husbandID]['BIRT'], indis[wifeID]['BIRT']
 
-            husband_birth = utils.parse_date(husband_birth)
-            wife_birth = utils.parse_date(wife_birth)
-            
-            # both partners are born
-            if (husband_birth and wife_birth is not None):
-              # if husband + wife were 14 and above when married
-              husband_marriage_age = utils.get_age(husband_birth, marriage_date)
-              wife_marriage_age = utils.get_age(wife_birth, marriage_date)
+      ages = []
+      if husband_birth is not None:
+        husband_birth = utils.parse_date(husband_birth)
+        husband_marriage_age = utils.get_age(husband_birth, marriage_date)
+        ages.append(husband_marriage_age)
 
-              if (husband_marriage_age < 14) or (wife_marriage_age < 14):
-                    invalid_marriages.append((fid, f'Family id={fid} has marriage before age 14'))
+      if wife_birth is not None:
+        wife_birth = utils.parse_date(wife_birth)
+        wife_marriage_age = utils.get_age(wife_birth, marriage_date)
+        ages.append(wife_marriage_age)
+
+      if len(ages) > 0 and min(ages) < 14:
+        invalid_marriages.append((fid, f'Family id={fid} has marriage before age 14'))
 
     return invalid_marriages
