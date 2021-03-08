@@ -1,6 +1,8 @@
 from datetime import datetime
 
 def parse_date(str_date):
+  if str_date is None:
+    return datetime.strftime(datetime.now(), '%Y-%m-%d')
   return datetime.strptime(str_date, '%Y-%m-%d')
 
 # Helper function for checking if a date is parsable or not
