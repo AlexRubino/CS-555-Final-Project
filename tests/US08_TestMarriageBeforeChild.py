@@ -1,5 +1,3 @@
-import sys
-sys.path.append('../')
 import unittest
 import validation as validation
 import project as proj
@@ -40,7 +38,7 @@ class MarriageBeforeChild(unittest.TestCase):
         ged = self.generate_fam_1(marriage='01 JAN 2010', birth='01 JAN 2009')
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_marriage_before_child(fams, indis)
-        self.assertEqual(output, [('F1', 'Child id=I1_3 has birthdate before marriage')])
+        self.assertEqual(output, [('F1', 'Child id=I1_3 has birthdate before marriage of parents')])
 
     def test_same_date(self):
         ged = self.generate_fam_1(marriage='01 JAN 2010', birth='01 JAN 2010')

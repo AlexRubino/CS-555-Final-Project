@@ -1,5 +1,3 @@
-import sys
-sys.path.append('../')
 import unittest
 import validation as validation
 import project as proj
@@ -10,7 +8,7 @@ class DatesBeforeCurrent(unittest.TestCase):
     '''
         Helper function which generates a minimal family of two parents 
         and a child with a given marriage date and child birthdate. 
-        
+
         Optionally takes in the family ID (which is used to generate
         individual IDs as well).
     '''
@@ -31,57 +29,48 @@ class DatesBeforeCurrent(unittest.TestCase):
             '1 MARR',
             f'2 DATE {marriage}'
         ]
-    
+
     def test_ok_dates(self):
         ged = self.generate_fam_1(marriage='01 JAN 2010', birth='01 JAN 2011')
-        root_nodes = proj.build_ged_tree(ged)
-        output = validation.validate_dates_before_current(root_nodes)
+        fams, indis = proj.parse_ged_data(ged)
+        output = validation.validate_dates_before_current(fams, indis)
         self.assertEqual(output, [])
-    
+
     def test_bad_date(self):
         ged = self.generate_fam_1(marriage='01 JAN 4010', birth='01 JAN 2011')
-        root_nodes = proj.build_ged_tree(ged)
-        output = validation.validate_dates_before_current(root_nodes)
-        self.assertEqual(output, [('4010-01-01', 'Date is invalid - after present date')])
-        
+        fams, indis = proj.parse_ged_data(ged)
+        output = validation.validate_dates_before_current(fams, indis)
+        self.assertEqual(output, [(False, 'F1', 'Marriage 4010-01-01 occurs in the future')])
+
     def test_bad_dates(self):
         ged = self.generate_fam_1(marriage='01 JAN 4010', birth='07 FEB 2102')
-        root_nodes = proj.build_ged_tree(ged)
-        output = validation.validate_dates_before_current(root_nodes)
-        bad_dates = [date for date,_ in output]
-        self.assertEqual(len(bad_dates), 2)
-        self.assertTrue('4010-01-01' in bad_dates)
-        self.assertTrue('2102-02-07' in bad_dates)
+        fams, indis = proj.parse_ged_data(ged)
+        output = validation.validate_dates_before_current(fams, indis)
+        self.assertEqual(output, [(True, 'I1_3', 'Birthday 2102-02-07 occurs in the future'), (False, 'F1', 'Marriage 4010-01-01 occurs in the future')])
 
     def test_many_bad_dates(self):
         ged1 = self.generate_fam_1(marriage='25 DEC 2101', birth='31 OCT 2102', id=1)
         ged2 = self.generate_fam_1(marriage='31 DEC 2104', birth='14 FEB 2103', id=2)
-        
-        root_nodes = proj.build_ged_tree(ged1 + ged2)
-        output = validation.validate_dates_before_current(root_nodes)
-        bad_dates = [date for date,_ in output]
-        self.assertEqual(len(bad_dates), 4)
-        self.assertTrue('2101-12-25' in bad_dates)
-        self.assertTrue('2102-10-31' in bad_dates)
-        self.assertTrue('2103-02-14' in bad_dates)
-        self.assertTrue('2104-12-31' in bad_dates)
-    
+
+        fams, indis = proj.parse_ged_data(ged1 + ged2)
+        output = validation.validate_dates_before_current(fams, indis)
+        self.assertEqual(output, [(True, 'I1_3', 'Birthday 2102-10-31 occurs in the future'), (True, 'I2_3', 'Birthday 2103-02-14 occurs in the future'), (False, 'F1', 'Marriage 2101-12-25 occurs in the future'), (False, 'F2', 'Marriage 2104-12-31 occurs in the future')])
+
+
     def test_today_tomorrow(self):
         today = datetime.date.today()
         ged_stoday = today.strftime("%d %b %Y").upper()
         stoday = utils.stringify_date(today)
-        
+
         tomorrow = today + datetime.timedelta(days=1)
         ged_stomorrow = tomorrow.strftime("%d %b %Y").upper()
         stomorrow = utils.stringify_date(tomorrow)
-        
+
         ged = self.generate_fam_1(marriage=ged_stoday, birth=ged_stomorrow, id=1)
-        
-        root_nodes = proj.build_ged_tree(ged)
-        output = validation.validate_dates_before_current(root_nodes)
-        bad_dates = [date for date,_ in output]
-        self.assertEqual(len(bad_dates), 1)
-        self.assertTrue(stomorrow in bad_dates)
+
+        fams, indis = proj.parse_ged_data(ged)
+        output = validation.validate_dates_before_current(fams, indis)
+        self.assertEqual(output, [(True, 'I1_3', 'Birthday 2021-03-09 occurs in the future')])
 
 
 if __name__ == '__main__':
