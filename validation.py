@@ -4,30 +4,33 @@ import utils as utils
 '''
   Implements US01: Dates before current date
 '''
-def validate_dates_before_current(root_nodes):
+def validate_dates_before_current(fams, indis):
   ret_data = []
-  today = utils.current_date()
-  def check_dates(root):
-    if root.tag == 'DATE':
-      sdate = root.get_arg()
-      date = utils.parse_date(sdate)
-      if date > today:
-        ret_data.append((sdate, 'Date is invalid - after present date'))
 
-    for child in root.children:
-      check_dates(child)
+  def check(date_str, is_indi, id, type):
+    if utils.parse_date(date_str) > utils.current_date():
+      ret_data.append((is_indi, id, f'{type} {date_str} occurs in the future'))
 
-  for root in root_nodes:
-    check_dates(root)
+  for iid in indis:
+    if indis[iid]['BIRT'] is not None:
+      check(indis[iid]['BIRT'], True, iid, 'Birthday')
+    if indis[iid]['DEAT'] is not None:
+      check(indis[iid]['DEAT'], True, iid, 'Death')
+
+  for fid in fams:
+    if fams[fid]['MARR'] is not None:
+      check(fams[fid]['MARR'], False, fid, 'Marriage')
+    if fams[fid]['DIV'] is not None:
+      check(fams[fid]['DIV'], False, fid, 'Divorce')
 
   return ret_data
 
 '''
   Implements US02: Birth before marriage
-  
+
   Returns a list pairs:
   [(id1, r1), (id2, r2), ...]
-  
+
   Where the first item in the pair is the id of an
   invalid person and the second item is the reason.
 '''
@@ -44,15 +47,15 @@ def validate_birth_before_marriage(fams, indis):
 
           if marriage_day < birthday:
             return_data.append((cid, f'Person id = {cid} has marriage before birth.'))
-      
+
   return return_data
-  
+
 '''
   Implements US03: Birth before death
-  
+
   Returns a list pairs:
   [(id1, r1), (id2, r2), ...]
-  
+
   Where the first item in the pair is the id of an
   invalid person and the second item is the reason.
 '''
@@ -68,14 +71,14 @@ def validate_birth_before_death(fams, indis):
 
         if death_day < birthday:
           return_data.append((cid, f'Person id = {cid} has death before birth.'))
-      
+
   return return_data
 
 '''
   US04:     Marriage Before Divorce
   Author:   Luke McEvoy
   Sprint:   1 (3/8/21)
-  
+
   Story Description:
     Marriage should occur before divorce of spouses, and divorce can only occur after marriage
 '''
@@ -102,7 +105,7 @@ def validate_marriage_before_divorce(fams, indis):
   US05:     Marriage before Death
   Author:   Luke McEvoy
   Sprint:   1 (3/8/21)
-  
+
   Story Description:
     Marriage should occur before death of either spouse
 '''
@@ -142,7 +145,7 @@ def validate_marriage_before_death(fams, indis):
         if min(dead_partners) < marriage:
           # add family to invalid marriage list
           invalid_marriages.append((fid, f'Family id={fid} has marriage after death of partner'))
-  
+
   return invalid_marriages
 
 '''
@@ -153,7 +156,7 @@ def validate_marriage_before_death(fams, indis):
 '''
 def validate_divorce_before_death(fams, indis):
   ret_data = []
-  
+
   for fid in fams:
     if fams[fid]['DIV'] is not None:
       divorce_date = utils.parse_date(fams[fid]['DIV'])
@@ -168,7 +171,7 @@ def validate_divorce_before_death(fams, indis):
         death_date = utils.parse_date(indis[wife_id]['DEAT'])
         if death_date < divorce_date:
           ret_data.append((wife_id, f'Individual id={wife_id} has a divorce after her death'))
-  
+
   return ret_data
 
 '''
@@ -181,7 +184,7 @@ def validate_reasonable_age(fams, indis):
   ret_data = []
   lifetime = 150
   current_date = utils.current_date()
-  
+
   for iid in indis:
     death_date = None
     if indis[iid]['DEAT'] is not None:
@@ -203,34 +206,34 @@ def validate_reasonable_age(fams, indis):
       birth_date = utils.parse_date(indis[iid]['BIRT'])
       if utils.get_age(birth_date, death_date) > lifetime:
         ret_data.append((iid, f'Individual id={iid} is older than {lifetime} years'))
-  
+
   return ret_data
 
 '''
   Implements US08: Birth before marriage of parents
-  
+
   Returns a list pairs:
   [(id1, r1), (id2, r2), ...]
-  
+
   Where the first item in the pair is the id of an
   invalid family and the second item is the reason.
-  
+
   Note that a given family id may appear more than
   once if multiple invalid reasons are found.
 '''
 def validate_marriage_before_child(fams, indis):
   ret_data = []
-  
+
   for fid in fams:
     if fams[fid]['MARR'] is not None:
       marriage = utils.parse_date(fams[fid]['MARR'])
-      
+
       for cid in fams[fid]['CHIL']:
         if indis[cid]['BIRT'] is not None:
           birth = utils.parse_date(indis[cid]['BIRT'])
           if birth < marriage:
             ret_data.append((fid, f'Child id={cid} has birthdate before marriage'))
-  
+
   return ret_data
 
 
@@ -238,7 +241,7 @@ def validate_marriage_before_child(fams, indis):
   US10:     Marriage after 14
   Author:   Luke McEvoy & Alex Rubino
   Sprint:   2 (3/22/21)
-  
+
   Story Description:
     Marriage should be at least 14 years after birth of both spouses (parents must be at least 14 years old)
 '''
