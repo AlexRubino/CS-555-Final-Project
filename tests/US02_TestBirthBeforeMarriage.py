@@ -96,7 +96,7 @@ class TestBirthBeforeMarriage(unittest.TestCase):
         )   
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_birth_before_marriage(fams, indis)
-        self.assertEqual(output, [('I1_1', 'Person id = I1_1 in family id = F1 has marriage before birth.')])
+        self.assertEqual(output, [('I1_1', 'Husband id = I1_1 in family id = F1 has marriage before birth.')])
     
     def test5(self):
         ged = self.generate_fam_2(
@@ -106,7 +106,7 @@ class TestBirthBeforeMarriage(unittest.TestCase):
         )   
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_birth_before_marriage(fams, indis)
-        self.assertEqual(output, [('I1_1', 'Person id = I1_1 in family id = F1 has marriage before birth.'), ('I1_2', 'Person id = I1_2 in family id = F1 has marriage before birth.')])
+        self.assertEqual(output, [('I1_1', 'Husband id = I1_1 in family id = F1 has marriage before birth.'), ('I1_2', 'Wife id = I1_2 in family id = F1 has marriage before birth.')])
 
 if __name__ == '__main__':
     unittest.main()

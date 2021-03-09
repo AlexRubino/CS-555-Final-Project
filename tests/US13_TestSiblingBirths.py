@@ -73,30 +73,22 @@ class TestSiblingBirths(unittest.TestCase):
         self.assertEqual(output, [])
 
     def test3(self):
-        ged = self.generate_fam_1('01 JAN 2010', '16 JUN 2010')
+        ged = self.generate_fam_1('01 JAN 2010', '01 SEP 2010')
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_sibling_births(fams, indis)
         self.assertEqual(output, [('F1', "Siblings with id = I1_3 and id = I1_4 in fid = F1 have birth dates between three days and eight months apart.")])
 
-#     def test4(self):
-#         ged = self.generate_fam_2(
-#             husband=('01 JAN 2011', '01 MAR 2013'), 
-#             wife=('01 FEB 2009', '01 MAR 2013'), 
-#             marriage=('01 JAN 2010', '01 JUN 2012')
-#         )   
-#         fams, indis = proj.parse_ged_data(ged)
-#         output = validation.validate_birth_before_marriage(fams, indis)
-#         self.assertEqual(output, [('I1_1', 'Person id = I1_1 in family id = F1 has marriage before birth.')])
+    def test4(self):
+        ged = self.generate_fam_1('01 JAN 2010', '01 JAN 2011')
+        fams, indis = proj.parse_ged_data(ged)
+        output = validation.validate_sibling_births(fams, indis)
+        self.assertEqual(output, [])
     
-#     def test5(self):
-#         ged = self.generate_fam_2(
-#             husband=('01 JAN 2011', '01 MAR 2013'), 
-#             wife=('01 FEB 2010', '01 MAR 2013'), 
-#             marriage=('01 JAN 2010', '01 JUN 2012')
-#         )   
-#         fams, indis = proj.parse_ged_data(ged)
-#         output = validation.validate_birth_before_marriage(fams, indis)
-#         self.assertEqual(output, [('I1_1', 'Person id = I1_1 in family id = F1 has marriage before birth.'), ('I1_2', 'Person id = I1_2 in family id = F1 has marriage before birth.')])
+    # def test5(self):
+    #     ged = self.generate_fam_1('31 DEC 2010', '28 FEB 2011')
+    #     fams, indis = proj.parse_ged_data(ged)
+    #     output = validation.validate_sibling_births(fams, indis)
+    #     self.assertEqual(output, [('F1', "Siblings with id = I1_3 and id = I1_4 in fid = F1 have birth dates between three days and eight months apart.")])
 
 if __name__ == '__main__':
     unittest.main()

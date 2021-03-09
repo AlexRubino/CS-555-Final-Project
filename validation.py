@@ -149,12 +149,48 @@ def validate_birth_marriage_order(fams, indis):
   return ret_data
 
 '''
+  Implements US12
+  Sprint 2
+  Alex Rubino
+  Mother should be less than 60 years older than her children and father should be less than 80 years older than his children.
+'''
+def validate_parent_age(fams, indis):
+  return_data = []
+
+  for fid in fams:
+    # if fams[fid]['MARR'] is not None:
+      husband_id = fams[fid]['HUSB']
+      wife_id = fams[fid]['WIFE']
+
+      husband_birth = indis[husband_id]['BIRT']
+      wife_birth = indis[wife_id]['BIRT']
+
+      if husband_birth is not None:
+        husband_birthday = utils.parse_date(husband_birth)
+
+      if wife_birth is not None:
+        wife_birthday = utils.parse_date(wife_birth)
+      
+      for cid in fams[fid]['CHIL']:
+        child_birth = indis[cid]['BIRT']
+
+        if child_birth is not None:
+          child_birthday = utils.parse_date(child_birth)
+
+          if husband_birthday.date().year + 80 < child_birth.date().year:
+            return_data.append((husband_id, f'Husband id = {husband_id} in family id = {fid} is born over 80 years before child id = {cid}.'))
+
+          if wife_birthday.date().year + 60 < child_birth.date().year:
+            return_data.append((husband_id, f'Husband id = {husband_id} in family id = {fid} is born over 80 years before child id = {cid}.'))
+
+  return return_data
+
+'''
   Implements US13
   Sprint 2
   Luke McEvoy & Alex Rubino
   Birth dates of siblings should be more than 8 months apart or less than 2 days apart (twins may be born one day apart, e.g. 11:59 PM and 12:02 AM the following calendar day).
 '''
-
 def validate_sibling_births(fams, indis):
   return_data = []
 
@@ -163,20 +199,37 @@ def validate_sibling_births(fams, indis):
 
     for cid in fams[fid]['CHIL']:
       # Appends every child's birthday into the array
-      children_birthdays.append((cid, utils.parse_date(indis[cid]['BIRT'])))
+      children_birthdays.append((cid, indis[cid]['BIRT']))
     
-
     for i in range(0, len(children_birthdays)):
 
       for j in range(i + 1, len(children_birthdays)):
 
-        difference = utils.date_difference(children_birthdays[i][1], children_birthdays[j][1])
+        year_difference = utils.year_difference(children_birthdays[i][1], children_birthdays[j][1])
+        
+        month_difference = utils.month_difference(children_birthdays[i][1], children_birthdays[j][1])
+        
+        day_difference = utils.day_difference(children_birthdays[i][1], children_birthdays[j][1])
 
-        if difference.days > 1:
-          print(difference.days)
-          print(difference.days / 30)
-          if (difference.days / 30) < 9:
+        print(year_difference)
+        print(month_difference)
+        print(day_difference)
+
+        if year_difference <= 1:
+          if month_difference in range(1,8):
             return_data.append((fid, f'Siblings with id = {children_birthdays[i][0]} and id = {children_birthdays[j][0]} in fid = {fid} have birth dates between three days and eight months apart.'))
+          elif month_difference == 8:
+            if day_difference == 0:
+              return_data.append((fid, f'Siblings with id = {children_birthdays[i][0]} and id = {children_birthdays[j][0]} in fid = {fid} have birth dates between three days and eight months apart.'))
+          elif month_difference == 0:
+            if day_difference >= 2:
+              return_data.append((fid, f'Siblings with id = {children_birthdays[i][0]} and id = {children_birthdays[j][0]} in fid = {fid} have birth dates between three days and eight months apart.'))
+
+        # if difference.days > 1:
+        #   print(difference.days)
+        #   print(difference.days / 30)
+        #   if (difference.days / 30) < 9:
+        #     return_data.append((fid, f'Siblings with id = {children_birthdays[i][0]} and id = {children_birthdays[j][0]} in fid = {fid} have birth dates between three days and eight months apart.'))
       
         # if abs(children_birthdays[i][1].date().year - children_birthdays[j][1].date().year) <= 1:
         #   if abs(children_birthdays[i][1].date().month - children_birthdays[j][1].date().month) == 0:
