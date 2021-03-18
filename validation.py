@@ -1,5 +1,5 @@
 import utils as utils
-
+from datetime import timedelta
 
 '''
   Implements US01: Dates before current date
@@ -236,6 +236,31 @@ def validate_marriage_before_child(fams, indis):
 
   return ret_data
 
+'''
+  Implements US09: Birth before death of parents
+
+  We enforce
+  - child birth <= mother death
+  - child birth <= father death + 1 year
+'''
+def validate_birth_before_parent_death(fams, indis):
+  ret_data = []
+
+  for iid in indis:
+    if indis[iid]['FAMC'] is None or indis[iid]['BIRT'] is None:
+      continue
+    fid = indis[iid]['FAMC']
+    birthdate = utils.parse_date(indis[iid]['BIRT'])
+
+    for par in ['HUSB', 'WIFE']:
+      if fams[fid][par] is None or indis[fams[fid][par]]['DEAT'] is None:
+        continue
+      par_deat = utils.parse_date(indis[fams[fid][par]]['DEAT'])
+      if par == 'WIFE' and par_deat < birthdate or \
+         par == 'HUSB' and par_deat + timedelta(days=365) < birthdate:
+        ret_data.append((iid, f'Individual {iid} was born after parent {fams[fid][par]} death'))
+
+  return ret_data
 
 '''
   US10:     Marriage after 14
@@ -281,7 +306,7 @@ def validate_marriage_after_fourteen(fams, indis):
   Marriages without a MARR tag are ignored and marriages
   without a DIV (or DEAT) tag are assumed to be ongoing.
 '''
-def validate_marriage_before_child(fams, indis):
+def validate_no_bigamy(fams, indis):
   def intersect(int1, int2):
     a,b = int1
     c,d = int2

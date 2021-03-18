@@ -14,7 +14,7 @@ class NoBigamy(unittest.TestCase):
         husb_fams.append(id)
         w_id, w_birth, w_death = wife
         marr_date, div_date = marriage
-        ret =  [
+        ret = [
             f'0 {w_id} INDI',
             '1 BIRT' if w_birth is not None else '',
             f'2 DATE {w_birth}' if w_birth is not None else '',
@@ -51,7 +51,7 @@ class NoBigamy(unittest.TestCase):
         )
 
         fams, indis = proj.parse_ged_data(ged)
-        output = validation.validate_marriage_before_child(fams, indis)
+        output = validation.validate_no_bigamy(fams, indis)
         self.assertEqual(output, [])
 
     def test_multi_fam_good(self):
@@ -70,7 +70,7 @@ class NoBigamy(unittest.TestCase):
             define_husband=False
         )
         fams, indis = proj.parse_ged_data(ged1 + ged2)
-        output = validation.validate_marriage_before_child(fams, indis)
+        output = validation.validate_no_bigamy(fams, indis)
         self.assertEqual(output, [])
 
     def test_multi_fam_bad_divorce(self):
@@ -89,7 +89,7 @@ class NoBigamy(unittest.TestCase):
             define_husband=False
         )
         fams, indis = proj.parse_ged_data(ged1 + ged2)
-        output = validation.validate_marriage_before_child(fams, indis)
+        output = validation.validate_no_bigamy(fams, indis)
         self.assertEqual(output, [('I1', 'Individual id=I1 was in two or more marriages at the same time')])
 
     def test_multi_fam_bad_death(self):
@@ -108,7 +108,7 @@ class NoBigamy(unittest.TestCase):
             define_husband=False
         )
         fams, indis = proj.parse_ged_data(ged1 + ged2)
-        output = validation.validate_marriage_before_child(fams, indis)
+        output = validation.validate_no_bigamy(fams, indis)
         self.assertEqual(output, [('I1', 'Individual id=I1 was in two or more marriages at the same time')])
 
     def test_multi_fam_good_death(self):
@@ -128,7 +128,7 @@ class NoBigamy(unittest.TestCase):
         )
 
         fams, indis = proj.parse_ged_data(ged1 + ged2)
-        output = validation.validate_marriage_before_child(fams, indis)
+        output = validation.validate_no_bigamy(fams, indis)
         self.assertEqual(output, [])
 
     def test_super_polygamy(self):
@@ -154,7 +154,7 @@ class NoBigamy(unittest.TestCase):
             define_husband=False
         )
         fams, indis = proj.parse_ged_data(ged1 + ged2 + ged3)
-        output = validation.validate_marriage_before_child(fams, indis)
+        output = validation.validate_no_bigamy(fams, indis)
         self.assertEqual(output, [('I1', 'Individual id=I1 was in two or more marriages at the same time')])
 
 if __name__ == '__main__':

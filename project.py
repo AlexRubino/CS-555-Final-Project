@@ -149,12 +149,11 @@ def get_indis(root_nodes):
 
       indi_data = { param: None for param in INDI_PARAMS }
       indi_data['FAMS'] = []
-      indi_data['FAMC'] = []
 
       for nd in root.children:
         if nd.tag not in INDI_PARAMS:
           continue
-        if nd.tag == 'FAMS' or nd.tag == 'FAMC':
+        if nd.tag == 'FAMS':
           indi_data[nd.tag].append(nd.args[0])
         else:
           indi_data[nd.tag] = nd.get_arg()

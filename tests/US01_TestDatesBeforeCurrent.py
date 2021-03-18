@@ -70,7 +70,7 @@ class DatesBeforeCurrent(unittest.TestCase):
 
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_dates_before_current(fams, indis)
-        self.assertEqual(output, [(True, 'I1_3', 'Birthday 2021-03-09 occurs in the future')])
+        self.assertEqual(output, [(True, 'I1_3', f'Birthday {stomorrow} occurs in the future')])
 
 
 if __name__ == '__main__':
