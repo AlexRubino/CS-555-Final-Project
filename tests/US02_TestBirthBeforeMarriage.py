@@ -2,7 +2,7 @@ import unittest
 import validation as validation
 import project as proj
 
-class TestDivorceBeforeDeath(unittest.TestCase):
+class TestBirthBeforeMarriage(unittest.TestCase):
     '''
         Helper function which generates a minimal family of two parents 
         and a child with a given marriage date and child birthdate. 
@@ -10,7 +10,7 @@ class TestDivorceBeforeDeath(unittest.TestCase):
         Optionally takes in the family ID (which is used to generate
         individual IDs as well).
     '''
-    def generate_fam_1(self, marriage, birth, id=1):
+    def generate_fam_1(self, birth, marriage, id=1):
         return [
             f'0 I{id}_1 INDI',
             f'1 FAMS F{id}',
@@ -56,73 +56,55 @@ class TestDivorceBeforeDeath(unittest.TestCase):
         # This removes all the empty lines
         return [i for i in ret if i]
     
-    def test_ok_age(self):
+    def test1(self):
         ged = self.generate_fam_2(
             husband=('01 JAN 2010', '01 JAN 2013'), 
             wife=('01 JAN 2010', '01 JAN 2013'), 
-            marriage=(None, None)
+            marriage=('01 JAN 2011', '01 JAN 2012')
         )
-
         fams, indis = proj.parse_ged_data(ged)
-        output = validation.validate_reasonable_age(fams, indis)
+        output = validation.validate_birth_before_marriage(fams, indis)
         self.assertEqual(output, [])
 
-    def test_husband_over(self):
+    def test2(self):
         ged = self.generate_fam_2(
-            husband=('01 JAN 2010', '01 JAN 2213'), 
-            wife=('01 JAN 2010', '01 JAN 2013'), 
-            marriage=(None, None)
-        )
-
+            husband=('01 FEB 2010', '01 MAR 2013'), 
+            wife=('01 FEB 2010', '01 MAR 2013'), 
+            marriage=('01 JAN 2011', '01 JUN 2012')
+        )        
         fams, indis = proj.parse_ged_data(ged)
-        output = validation.validate_reasonable_age(fams, indis)
-        self.assertEqual(output, [('I1_1', 'Individual id=I1_1 is older than 150 years')])
-
-    def test_wife_over(self):
-        ged = self.generate_fam_2(
-            husband=('11 JUL 2010', '06 DEC 2013'), 
-            wife=('22 DEC 2010', '31 MAR 2213'), 
-            marriage=(None, None)
-        )
-
-        fams, indis = proj.parse_ged_data(ged)
-        output = validation.validate_reasonable_age(fams, indis)
-        self.assertEqual(output, [('I1_2', 'Individual id=I1_2 is older than 150 years')])
-
-    def test_both_over(self):
-        ged = self.generate_fam_2(
-            husband=('01 JAN 2010', '01 JAN 221323542354324'), 
-            wife=('22 DEC 1', '31 MAR 2213'),
-            marriage=(None, None)
-        )
-
-        fams, indis = proj.parse_ged_data(ged)
-        output = validation.validate_reasonable_age(fams, indis)
-        self.assertEqual(output, [('I1_1', 'Individual id=I1_1 is older than 150 years'), 
-                                  ('I1_2', 'Individual id=I1_2 is older than 150 years')])
-
-    def test_ok_live(self):
-        ged = self.generate_fam_2(
-            husband=('01 JAN 2010', None), 
-            wife=('01 JAN 2010', None), 
-            marriage=(None, None)
-        )
-
-        fams, indis = proj.parse_ged_data(ged)
-        output = validation.validate_divorce_before_death(fams, indis)
+        output = validation.validate_birth_before_marriage(fams, indis)
         self.assertEqual(output, [])
 
-    def test_bad_live(self):
+    def test3(self):
         ged = self.generate_fam_2(
-            husband=('01 JAN 1577', None), 
-            wife=('22 DEC 2010', None),
-            marriage=(None, None)
-        )
-
+            husband=('01 JAN 2010', '01 MAR 2013'), 
+            wife=('01 FEB 2005', '01 MAR 2013'), 
+            marriage=('01 JAN 2010', '01 JUN 2012')
+        )        
         fams, indis = proj.parse_ged_data(ged)
-        output = validation.validate_reasonable_age(fams, indis)
-        self.assertEqual(output, [('I1_1', 'Individual id=I1_1 is older than 150 years')])
+        output = validation.validate_birth_before_marriage(fams, indis)
+        self.assertEqual(output, [])
 
+    def test4(self):
+        ged = self.generate_fam_2(
+            husband=('01 JAN 2011', '01 MAR 2013'), 
+            wife=('01 FEB 2009', '01 MAR 2013'), 
+            marriage=('01 JAN 2010', '01 JUN 2012')
+        )   
+        fams, indis = proj.parse_ged_data(ged)
+        output = validation.validate_birth_before_marriage(fams, indis)
+        self.assertEqual(output, [('I1_1', 'Person id=I1_1 has marriage before birth.')])
+    
+    def test5(self):
+        ged = self.generate_fam_2(
+            husband=('01 JAN 2011', '01 MAR 2013'), 
+            wife=('01 FEB 2010', '01 MAR 2013'), 
+            marriage=('01 JAN 2010', '01 JUN 2012')
+        )   
+        fams, indis = proj.parse_ged_data(ged)
+        output = validation.validate_birth_before_marriage(fams, indis)
+        self.assertEqual(output, [('I1_1', 'Person id=I1_1 has marriage before birth.'), ('I1_2', 'Person id=I1_2 has marriage before birth.')])
 
 if __name__ == '__main__':
     unittest.main()
