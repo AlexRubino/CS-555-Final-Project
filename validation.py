@@ -135,3 +135,19 @@ def validate_no_sextuples(fams, indis):
         break
   
   return ret_data
+
+'''
+  Implements US15
+  Sprint 2
+  Zack Schieberl
+  There cannot be more than 14 siblings in one family
+'''
+def validate_no_excessive_siblings(fams, indis):
+  MAX_SIB = 14
+  ret_data = []
+
+  for fid in fams:
+    if len(fams[fid]['CHIL']) > MAX_SIB:
+      ret_data.append((fid, f'Family id={fid} has more than {MAX_SIB} siblings'))
+
+  return ret_data
