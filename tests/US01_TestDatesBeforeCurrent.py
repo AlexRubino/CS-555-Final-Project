@@ -1,7 +1,7 @@
 import unittest
-import validation as validation
+import validation
 import project as proj
-import utils as utils
+import utils
 import datetime
 
 class DatesBeforeCurrent(unittest.TestCase):

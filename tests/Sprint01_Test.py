@@ -18,7 +18,7 @@ import US08_TestMarriageBeforeChild as US08
 def sprint01_suite():
   loader = unittest.TestLoader()
   suite = unittest.TestSuite()
-  
+
   suite.addTests(loader.loadTestsFromModule(US01))
   suite.addTests(loader.loadTestsFromModule(US02))
   suite.addTests(loader.loadTestsFromModule(US03))
@@ -27,7 +27,7 @@ def sprint01_suite():
   suite.addTests(loader.loadTestsFromModule(US06))
   suite.addTests(loader.loadTestsFromModule(US07))
   suite.addTests(loader.loadTestsFromModule(US08))
-  
+
   return suite
 
 if __name__ == '__main__':

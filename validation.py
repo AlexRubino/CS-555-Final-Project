@@ -1,5 +1,5 @@
-import utils as utils
 from datetime import timedelta
+import utils
 
 '''
   Implements US01: Dates before current date
@@ -7,9 +7,9 @@ from datetime import timedelta
 def validate_dates_before_current(fams, indis):
   ret_data = []
 
-  def check(date_str, is_indi, id, type):
+  def check(date_str, is_indi, oid, date_type):
     if utils.parse_date(date_str) > utils.current_date():
-      ret_data.append((is_indi, id, f'{type} {date_str} occurs in the future'))
+      ret_data.append((is_indi, oid, f'{date_type} {date_str} occurs in the future'))
 
   for iid in indis:
     if indis[iid]['BIRT'] is not None:

@@ -1,5 +1,5 @@
 import unittest
-import validation as validation
+import validation
 import project as proj
 
 class BirthBeforeParentDeath(unittest.TestCase):

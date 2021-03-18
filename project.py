@@ -1,15 +1,14 @@
-import os
-from prettytable import PrettyTable
 import argparse
-from datetime import datetime
+import os
 import logging
-import validation as validation
-import utils as utils
 import sys
+from prettytable import PrettyTable
+import validation
+import utils
 
 logging.getLogger().setLevel(logging.INFO)
-log_format = "%(levelname)s: %(message)s"
-logging.basicConfig(stream=sys.stdout, level='DEBUG', format=log_format)
+LOG_FORMAT = "%(levelname)s: %(message)s"
+logging.basicConfig(stream=sys.stdout, level='DEBUG', format=LOG_FORMAT)
 
 SUPPORTED_TAGS = {
   'comment': ['NOTE', 'HEAD', 'TRLR'],
@@ -27,7 +26,7 @@ FAM_PARAMS =  ['ID', 'HUSB', 'WIFE', 'CHIL', 'MARR', 'DIV']
 MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
 MONTH_NUM = {month : str(i+1).zfill(2) for i, month in enumerate(MONTHS)}
 
-class GED_Node:
+class GEDNode:
   # TODO: validate args based on tag
   def __init__(self, level, tag, args):
     self.level = level
@@ -38,7 +37,7 @@ class GED_Node:
   def prnt(self, level=0):
     args = ','.join(self.args)
     ls = '\t' * level
-    logging.debug(f'{ls}{{ {self.level}.{self.tag}[{args}] }}')
+    logging.debug('%s{ %d.%s[%s] }', ls, self.level, self.tag, args)
     for c in self.children:
       c.prnt(level+1)
 
@@ -54,22 +53,24 @@ class GED_Node:
         print(f'Error: DATE node has {len(self.args)} != 3 arguments')
         return None
       return self.args[2].zfill(4) + '-' + MONTH_NUM[self.args[1]] + '-' + self.args[0].zfill(2)
-    elif self.tag == 'NAME':
+
+    if self.tag == 'NAME':
       return ' '.join(self.args).replace('/','')
-    elif self.needs_date_arg():
+
+    if self.needs_date_arg():
       for c in self.children:
         if c.tag == 'DATE':
           d = c.get_arg()
           if d is not None:
             return d
       return None
-    else:
-      if len(self.args) == 0:
-        logging.error(f'{self.type} node has 0 arguments where 1 was expected')
-        return None
-      if len(self.args) > 1:
-        logging.warning(f'{self.type} node has {len(self.args)} arguments where 1 was expected')
-      return self.args[0]
+
+    if len(self.args) == 0:
+      logging.error('%s node has 0 arguments where 1 was expected', self.tag)
+      return None
+    if len(self.args) > 1:
+      logging.warning('%s node has %d arguments where 1 was expected', self.tag, len(self.args))
+    return self.args[0]
 
 '''
 Important assumption: "HEAD", "TRLR", and "NOTE" are not
@@ -91,7 +92,7 @@ def build_ged_tree(lines):
     data = line.split()
 
     if len(data) < 2:
-      logging.warning(f'invalid data \'{line}\'')
+      logging.warning('invalid data \'%s\'', line)
       continue
 
     level = data[0]
@@ -115,11 +116,11 @@ def build_ged_tree(lines):
       args = data[2:]
 
     if tag is None or args is None:
-      logging.warning(f'invalid data \'{line}\'')
+      logging.warning('invalid data \'%s\'', line)
     elif not valid:
-      logging.warning(f'invalid tag \'{line}\'')
+      logging.warning('invalid tag \'%s\'', line)
     else:
-      nodes.append(GED_Node(int(level), tag, args))
+      nodes.append(GEDNode(int(level), tag, args))
 
   stk = []
   root_nodes = []
@@ -129,7 +130,7 @@ def build_ged_tree(lines):
 
     if len(stk) > 0:
       if stk[-1].level != nd.level - 1:
-        logging.warning(f'level {nd.level} line follows level {stk[-1].level} level line')
+        logging.warning('level %d line follows level %d level line', nd.level, stk[-1].level)
       stk[-1].add_child(nd)
     else:
       root_nodes.append(nd)
@@ -144,7 +145,7 @@ def get_indis(root_nodes):
     if root.tag == 'INDI':
       indi_id = root.get_arg()
       if indi_id in indis:
-        logging.error(f'duplicate INDI id {indi_id}')
+        logging.error('duplicate INDI id %s', indi_id)
         continue
 
       indi_data = { param: None for param in INDI_PARAMS }
@@ -167,7 +168,7 @@ def get_fams(root_nodes):
     if root.tag == 'FAM':
       fam_id = root.get_arg()
       if fam_id in fams:
-        logging.error(f'duplicate FAM id {fam_id}')
+        logging.error('duplicate FAM id %s', fam_id)
         continue
 
       fam_data = { param: None for param in FAM_PARAMS }
@@ -191,15 +192,10 @@ def parse_ged_data(lines):
   indis = get_indis(root_nodes)
   return fams, indis
 
-def parse_ged_data(lines):
-  root_nodes = build_ged_tree(lines)
-  fams = get_fams(root_nodes)
-  indis = get_indis(root_nodes)
-  return fams, indis
-
 def print_tables(fams, indis):
   fam_table = PrettyTable()
-  fam_table.field_names = ['ID', 'Married', 'Divorced', 'Husband ID', 'Husband Name', 'Wife ID', 'Wife Name', 'Children']
+  fam_table.field_names = ['ID', 'Married', 'Divorced', 'Husband ID', 'Husband Name',
+                           'Wife ID', 'Wife Name', 'Children']
   for fam_id in sorted(fams.keys()):
     fam_data = fams[fam_id]
     fam_table.add_row([fam_id, fam_data['MARR'] or 'NA', fam_data['DIV'] or 'NA',
@@ -208,7 +204,8 @@ def print_tables(fams, indis):
                        fam_data['CHIL'] if len(fam_data['CHIL']) > 0 else 'NA' ])
 
   indi_table = PrettyTable()
-  indi_table.field_names = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Alive', 'Death', 'Child', 'Spouse']
+  indi_table.field_names = ['ID', 'Name', 'Gender', 'Birthday', 'Age',
+                            'Alive', 'Death', 'Child', 'Spouse']
   for indi_id in sorted(indis.keys()):
     indi_data = indis[indi_id]
 
@@ -236,14 +233,15 @@ def print_tables(fams, indis):
   print(indi_table)
   print(fam_table)
 
-if __name__ == '__main__':
-  parser = argparse.ArgumentParser(description='Parse a GED file to extract individuals and families.')
+def main():
+  parser = argparse.ArgumentParser(description='Parse a GED file to extract \
+                                                individuals and families.')
   parser.add_argument('file', type=str, help='the GED file')
 
   args = parser.parse_args()
 
   if not os.path.isfile(args.file):
-    logging.critical(f'missing file {args.file} in cwd')
+    logging.critical('missing file %s in cwd', args.file)
     exit(1)
 
   with open(args.file) as f:
@@ -252,19 +250,22 @@ if __name__ == '__main__':
   fams, indis = parse_ged_data(lines)
   print_tables(fams, indis)
 
-  for is_indi, id, reason in validation.validate_dates_before_current(fams, indis):
-    logging.error(f'{"INDIVIDUAL" if is_indi else "FAMILY"}: US01: {id}: {reason}')
+  for is_indi, oid, reason in validation.validate_dates_before_current(fams, indis):
+    logging.error('%s: US01: %s: %s', "INDIVIDUAL" if is_indi else "FAMILY", oid, reason)
   for iid, reason in validation.validate_birth_before_marriage(fams, indis):
-    logging.error(f'INDIVIDUAL: US02: {iid}: {reason}')
+    logging.error('INDIVIDUAL: US02: %s: %s', iid, reason)
   for iid, reason in validation.validate_birth_before_death(fams, indis):
-    logging.error(f'INDIVIDUAL: US03: {iid}: {reason}')
+    logging.error('INDIVIDUAL: US03: %s: %s', iid, reason)
   for fid, reason in validation.validate_marriage_before_divorce(fams, indis):
-    logging.error(f'FAMILY: US04: {fid}: {reason}')
+    logging.error('FAMILY: US04: %s: %s', fid, reason)
   for fid, reason in validation.validate_marriage_before_death(fams, indis):
-    logging.error(f'FAMILY: US05: {fid}: {reason}')
+    logging.error('FAMILY: US05: %s: %s', fid, reason)
   for fid, reason in validation.validate_divorce_before_death(fams, indis):
-    logging.error(f'FAMILY: US06: {fid}: {reason}')
+    logging.error('FAMILY: US06: %s: %s', fid, reason)
   for iid, reason in validation.validate_reasonable_age(fams, indis):
-    logging.warning(f'INDIVIDUAL: US07: {iid}: {reason}')
+    logging.warning('INDIVIDUAL: US07: %s: %s', iid, reason)
   for fid, reason in validation.validate_marriage_before_child(fams, indis):
-    logging.warning(f'FAMILY: US08: {fid}: {reason}')
+    logging.warning('FAMILY: US08: %s: %s', fid, reason)
+
+if __name__ == '__main__':
+  main()
