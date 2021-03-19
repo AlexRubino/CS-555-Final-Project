@@ -38,16 +38,27 @@ def validate_dates_before_current(fams, indis):
 def validate_birth_before_marriage(fams, indis):
   return_data = []
 
-  for iid in indis:
-    if indis[iid]['BIRT'] is not None:
-      birthday = utils.parse_date(indis[iid]['BIRT'])
+  for fid in fams:
+    if fams[fid]['MARR'] is not None:
+      marriage_day = utils.parse_date(fams[fid]['MARR'])
 
-      for fid in indis[iid]['FAMS']:
-        if fams[fid]['MARR'] is not None:
-          marriage_day = utils.parse_date(fams[fid]['MARR'])
+      husband_id = fams[fid]['HUSB']
+      wife_id = fams[fid]['WIFE']
 
-          if marriage_day < birthday:
-            return_data.append((iid, f'Person id={iid} has marriage before birth.'))
+      husband_birth = indis[husband_id]['BIRT']
+      wife_birth = indis[wife_id]['BIRT']
+
+      if husband_birth is not None:
+        husband_birthday = utils.parse_date(husband_birth)
+
+      if wife_birth is not None:
+        wife_birthday = utils.parse_date(wife_birth)
+
+      if marriage_day < husband_birthday:
+        return_data.append((husband_id, f'Husband id = {husband_id} in family id = {fid} has marriage before birth.'))
+
+      if marriage_day < wife_birthday:
+        return_data.append((wife_id, f'Wife id = {wife_id} in family id = {fid} has marriage before birth.'))
 
   return return_data
 
@@ -132,13 +143,13 @@ def validate_marriage_before_death(fams, indis):
         # if wife has died
         if wifeDeath is not None:
           wifeDeath = utils.parse_date(wifeDeath)
-          # add wife's death date to list of dead partners 
+          # add wife's death date to list of dead partners
           dead_partners.append(wifeDeath)
 
         # if husband has died
         if husbandDeath is not None:
           husbandDeath = utils.parse_date(husbandDeath)
-          # add husband's death date to list of dead partners 
+          # add husband's death date to list of dead partners
           dead_partners.append(husbandDeath)
 
         # find who died first (guarenteed at least one death between partners)
@@ -271,7 +282,7 @@ def validate_marriage_after_fourteen(fams, indis):
         invalid_marriages.append((fid, f'Family id={fid} has marriage before age 14'))
 
     return invalid_marriages
-  
+
 '''
   Implements US14
   Sprint 2
@@ -288,7 +299,7 @@ def validate_no_sextuples(fams, indis):
     for cid in fams[fid]['CHIL']:
       if indis[cid]['BIRT'] is not None:
         child_births.append(utils.parse_date(indis[cid]['BIRT']))
-    
+
     if child_births == []:
       continue
 
@@ -316,8 +327,87 @@ def validate_no_sextuples(fams, indis):
       if couplet_count + adjacent_count > 5:
         ret_data.append((fid, f'Family id={fid} has more than 5 children born together'))
         break
-  
+
   return ret_data
+
+'''
+  Implements US12
+  Sprint 2
+  Alex Rubino
+  Mother should be less than 60 years older than her children and father should be less than 80 years older than his children.
+'''
+def validate_parent_age(fams, indis):
+  return_data = []
+
+  for fid in fams:
+    if fams[fid]['HUSB'] is not None:
+      husband_id = fams[fid]['HUSB']
+
+    if fams[fid]['WIFE'] is not None:
+      wife_id = fams[fid]['WIFE']
+
+    if husband_id is not None:
+      husband_birth = indis[husband_id]['BIRT']
+
+    if wife_id is not None:
+      wife_birth = indis[wife_id]['BIRT']
+
+    if husband_birth is not None:
+      husband_birthday = utils.parse_date(husband_birth)
+
+    if wife_birth is not None:
+      wife_birthday = utils.parse_date(wife_birth)
+
+
+    for cid in fams[fid]['CHIL']:
+      if indis[cid]['BIRT'] is not None:
+        child_birthday = utils.parse_date(indis[cid]['BIRT'])
+
+      if husband_birthday.date().year + 80 < child_birthday.date().year:
+        return_data.append((husband_id, f'Husband id = {husband_id} in family id = {fid} is born over 80 years before child id = {cid}.'))
+
+      if wife_birthday.date().year + 60 < child_birthday.date().year:
+        return_data.append((wife_id, f'Wife id = {wife_id} in family id = {fid} is born over 60 years before child id = {cid}.'))
+
+  return return_data
+
+'''
+  Implements US13
+  Sprint 2
+  Luke McEvoy & Alex Rubino
+  Birth dates of siblings should be more than 8 months apart or less than 2 days apart (twins may be born one day apart, e.g. 11:59 PM and 12:02 AM the following calendar day).
+'''
+def validate_sibling_births(fams, indis):
+  return_data = []
+
+  for fid in fams:
+    children_birthdays = []
+
+    for cid in fams[fid]['CHIL']:
+      # Appends every child's birthday into the array
+      children_birthdays.append((cid, indis[cid]['BIRT']))
+
+    for i in range(0, len(children_birthdays)):
+
+      for j in range(i + 1, len(children_birthdays)):
+
+        year_difference = utils.year_difference(children_birthdays[i][1], children_birthdays[j][1])
+
+        month_difference = utils.month_difference(children_birthdays[i][1], children_birthdays[j][1])
+
+        day_difference = utils.day_difference(children_birthdays[i][1], children_birthdays[j][1])
+
+        if year_difference <= 1:
+          if month_difference in range(1,8):
+            return_data.append((fid, f'Siblings with id = {children_birthdays[i][0]} and id = {children_birthdays[j][0]} in fid = {fid} have birth dates between three days and eight months apart.'))
+          elif month_difference == 8:
+            if day_difference == 0:
+              return_data.append((fid, f'Siblings with id = {children_birthdays[i][0]} and id = {children_birthdays[j][0]} in fid = {fid} have birth dates between three days and eight months apart.'))
+          elif month_difference == 0:
+            if day_difference >= 2:
+              return_data.append((fid, f'Siblings with id = {children_birthdays[i][0]} and id = {children_birthdays[j][0]} in fid = {fid} have birth dates between three days and eight months apart.'))
+
+  return return_data
 
 '''
   Implements US15
