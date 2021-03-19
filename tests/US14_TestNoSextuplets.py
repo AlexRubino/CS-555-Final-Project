@@ -4,7 +4,7 @@ import unittest
 import validation as validation
 import project as proj
 
-class TheseNoSextuplets(unittest.TestCase):
+class TestNoSextuplets(unittest.TestCase):
     '''
         Helper function which generates a minimal family of two parents 
         and a child with a given marriage date and child birthdate. 
