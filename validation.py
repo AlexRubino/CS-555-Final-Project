@@ -1,4 +1,5 @@
 import utils as utils
+from datetime import timedelta
 
 
 '''
@@ -236,7 +237,6 @@ def validate_marriage_before_child(fams, indis):
 
   return ret_data
 
-
 '''
   US10:     Marriage after 14
   Author:   Luke McEvoy & Alex Rubino
@@ -271,3 +271,66 @@ def validate_marriage_after_fourteen(fams, indis):
         invalid_marriages.append((fid, f'Family id={fid} has marriage before age 14'))
 
     return invalid_marriages
+  
+'''
+  Implements US14
+  Sprint 2
+  Zack Schieberl + Ben Mirtchouk
+  A family cannot give birth to sextuplets
+  Only return an error if there are more than 5 kids born on two consecutive days
+'''
+def validate_no_sextuples(fams, indis):
+  birth_buffer = timedelta(days=1)
+
+  ret_data = []
+  for fid in fams:
+    child_births = []
+    for cid in fams[fid]['CHIL']:
+      if indis[cid]['BIRT'] is not None:
+        child_births.append(utils.parse_date(indis[cid]['BIRT']))
+    
+    if child_births == []:
+      continue
+
+    child_births.sort()
+    begin_date = child_births[0]
+    adjacent_date = begin_date + birth_buffer
+    couplet_count = 0
+    adjacent_count = 0
+    for birth in child_births:
+      if birth == begin_date:
+        couplet_count += 1
+      elif birth == adjacent_date:
+        adjacent_count += 1
+      elif birth == adjacent_date + birth_buffer:
+        begin_date = adjacent_date
+        adjacent_date = adjacent_date + birth_buffer
+        couplet_count = adjacent_count
+        adjacent_count = 1
+      else:
+        begin_date = birth
+        adjacent_date = begin_date + birth_buffer
+        couplet_count = 1
+        adjacent_count = 0
+
+      if couplet_count + adjacent_count > 5:
+        ret_data.append((fid, f'Family id={fid} has more than 5 children born together'))
+        break
+  
+  return ret_data
+
+'''
+  Implements US15
+  Sprint 2
+  Zack Schieberl
+  There cannot be more than 14 siblings in one family
+'''
+def validate_no_excessive_siblings(fams, indis):
+  MAX_SIB = 14
+  ret_data = []
+
+  for fid in fams:
+    if len(fams[fid]['CHIL']) > MAX_SIB:
+      ret_data.append((fid, f'Family id={fid} has more than {MAX_SIB} siblings'))
+
+  return ret_data
