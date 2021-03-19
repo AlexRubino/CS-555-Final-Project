@@ -158,29 +158,34 @@ def validate_parent_age(fams, indis):
   return_data = []
 
   for fid in fams:
-    # if fams[fid]['MARR'] is not None:
+    if fams[fid]['HUSB'] is not None:
       husband_id = fams[fid]['HUSB']
+
+    if fams[fid]['WIFE'] is not None:
       wife_id = fams[fid]['WIFE']
 
+    if husband_id is not None:
       husband_birth = indis[husband_id]['BIRT']
+
+    if wife_id is not None:  
       wife_birth = indis[wife_id]['BIRT']
 
-      if husband_birth is not None:
-        husband_birthday = utils.parse_date(husband_birth)
+    if husband_birth is not None:
+      husband_birthday = utils.parse_date(husband_birth)
 
-      if wife_birth is not None:
-        wife_birthday = utils.parse_date(wife_birth)
+    if wife_birth is not None:
+      wife_birthday = utils.parse_date(wife_birth)
 
-      
-      for cid in fams[fid]['CHIL']:
-        if indis[cid]['BIRT'] is not None:
-          child_birthday = utils.parse_date(indis[cid]['BIRT'])
+    
+    for cid in fams[fid]['CHIL']:
+      if indis[cid]['BIRT'] is not None:
+        child_birthday = utils.parse_date(indis[cid]['BIRT'])
 
-        if husband_birthday.date().year + 80 < child_birthday.date().year:
-          return_data.append((husband_id, f'Husband id = {husband_id} in family id = {fid} is born over 80 years before child id = {cid}.'))
+      if husband_birthday.date().year + 80 < child_birthday.date().year:
+        return_data.append((husband_id, f'Husband id = {husband_id} in family id = {fid} is born over 80 years before child id = {cid}.'))
 
-        if wife_birthday.date().year + 60 < child_birthday.date().year:
-          return_data.append((wife_id, f'Wife id = {wife_id} in family id = {fid} is born over 60 years before child id = {cid}.'))
+      if wife_birthday.date().year + 60 < child_birthday.date().year:
+        return_data.append((wife_id, f'Wife id = {wife_id} in family id = {fid} is born over 60 years before child id = {cid}.'))
 
   return return_data
 
@@ -210,10 +215,6 @@ def validate_sibling_births(fams, indis):
         
         day_difference = utils.day_difference(children_birthdays[i][1], children_birthdays[j][1])
 
-        print(year_difference)
-        print(month_difference)
-        print(day_difference)
-
         if year_difference <= 1:
           if month_difference in range(1,8):
             return_data.append((fid, f'Siblings with id = {children_birthdays[i][0]} and id = {children_birthdays[j][0]} in fid = {fid} have birth dates between three days and eight months apart.'))
@@ -223,19 +224,5 @@ def validate_sibling_births(fams, indis):
           elif month_difference == 0:
             if day_difference >= 2:
               return_data.append((fid, f'Siblings with id = {children_birthdays[i][0]} and id = {children_birthdays[j][0]} in fid = {fid} have birth dates between three days and eight months apart.'))
-
-        # if difference.days > 1:
-        #   print(difference.days)
-        #   print(difference.days / 30)
-        #   if (difference.days / 30) < 9:
-        #     return_data.append((fid, f'Siblings with id = {children_birthdays[i][0]} and id = {children_birthdays[j][0]} in fid = {fid} have birth dates between three days and eight months apart.'))
-      
-        # if abs(children_birthdays[i][1].date().year - children_birthdays[j][1].date().year) <= 1:
-        #   if abs(children_birthdays[i][1].date().month - children_birthdays[j][1].date().month) == 0:
-
-        # if (abs(children_birthdays[i][1].date().month - children_birthdays[j][1].date().month) <= 8): 
-        #   return_data.append((fid, f'Siblings with id = {children_birthdays[i][0]} and id = {children_birthdays[j][0]} in fid = {fid} have birth dates between eight months apart.'))
-        # elif (abs(children_birthdays[i][1].date().year - children_birthdays[j][1].date().year) == 0) and (abs(children_birthdays[i][1].date().month - children_birthdays[j][1].date().month) == 0) and (abs(children_birthdays[i][1].date().day - children_birthdays[j][1].date().day) >= 2):
-        #   return_data.append((fid, f'Siblings with id = {children_birthdays[i][0]} and id = {children_birthdays[j][0]} in fid = {fid} have birth dates between three days and eight months apart.'))
 
   return return_data
