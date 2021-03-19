@@ -4,6 +4,9 @@ from datetime import datetime
 def parse_date(str_date):
   return datetime.strptime(str_date, '%Y-%m-%d')
 
+def stringify_date(date):
+  return date.strftime("%Y-%m-%d")
+
 # Helper function for checking if a date is parsable or not
 # Returns a boolean
 def parseable_date(str_date):
@@ -26,7 +29,7 @@ def current_date():
 def get_age(birthday, today=None):
   if today is None:
     today = current_date()
-    
+
   ans = today.year - birthday.year
   if (today.month, today.day) < (birthday.month, birthday.day):
     ans -= 1
