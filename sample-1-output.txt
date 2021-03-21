@@ -1,0 +1,108 @@
+WARNING: invalid tag '1 SOUR Family Echo'
+WARNING: invalid tag '2 WWW http://www.familyecho.com/'
+WARNING: invalid tag '1 FILE Family 2'
+WARNING: invalid tag '1 DATE 8 FEB 2021'
+WARNING: invalid tag '1 DEST ANSTFILE'
+WARNING: invalid tag '1 GEDC'
+WARNING: invalid tag '2 VERS 5.5.1'
+WARNING: invalid tag '2 FORM LINEAGE-LINKED'
+WARNING: invalid tag '1 SUBM I1'
+WARNING: invalid tag '2 NAME'
+WARNING: invalid tag '1 SUBN'
+WARNING: invalid tag '1 CHAR UTF-8'
+WARNING: invalid tag '2 GIVN Manuel'
+WARNING: invalid tag '2 SURN Wilder'
+WARNING: invalid tag '2 _MARNM Wilder'
+WARNING: invalid tag '2 GIVN Davina'
+WARNING: invalid tag '2 SURN Hardin'
+WARNING: invalid tag '2 _MARNM Wilder'
+WARNING: invalid tag '2 GIVN Cassius'
+WARNING: invalid tag '2 SURN Hardin'
+WARNING: invalid tag '2 _MARNM Hardin'
+WARNING: invalid tag '2 GIVN Ayla'
+WARNING: invalid tag '2 SURN Burch'
+WARNING: invalid tag '2 _MARNM Hardin'
+WARNING: invalid tag '2 GIVN Andres'
+WARNING: invalid tag '2 SURN Wilder'
+WARNING: invalid tag '2 _MARNM Wilder'
+WARNING: invalid tag '2 GIVN Kaitlyn'
+WARNING: invalid tag '2 SURN Rogers'
+WARNING: invalid tag '2 _MARNM Wilder'
+WARNING: invalid tag '2 GIVN Emmy'
+WARNING: invalid tag '2 SURN Holder'
+WARNING: invalid tag '2 _MARNM Wilder'
+WARNING: invalid tag '2 GIVN Jamir'
+WARNING: invalid tag '2 SURN Wilder'
+WARNING: invalid tag '2 _MARNM Wilder'
+WARNING: invalid tag '2 GIVN Jimena'
+WARNING: invalid tag '2 SURN Sanchez'
+WARNING: invalid tag '2 _MARNM Thomson'
+WARNING: invalid tag '2 GIVN Mordechai'
+WARNING: invalid tag '2 SURN Thomson'
+WARNING: invalid tag '2 _MARNM Thomson'
+WARNING: invalid tag '2 GIVN Knox'
+WARNING: invalid tag '2 SURN Wilder'
+WARNING: invalid tag '2 _MARNM Wilder'
+WARNING: invalid tag '2 GIVN Nash'
+WARNING: invalid tag '2 SURN Wilder'
+WARNING: invalid tag '2 _MARNM Wilder'
+WARNING: invalid tag '2 GIVN Cohen'
+WARNING: invalid tag '2 SURN Thomson'
+WARNING: invalid tag '2 _MARNM Thomson'
+WARNING: invalid tag '2 GIVN Addyson'
+WARNING: invalid tag '2 SURN Thomson'
+WARNING: invalid tag '2 _MARNM Thomson'
+WARNING: invalid tag '2 GIVN Coraline'
+WARNING: invalid tag '2 SURN Thomson'
+WARNING: invalid tag '2 _MARNM Thomson'
+WARNING: invalid tag '1 _CURRENT Y'
+WARNING: invalid tag '1 _CURRENT N'
+WARNING: invalid tag '1 _CURRENT Y'
+WARNING: invalid tag '1 _CURRENT Y'
+WARNING: invalid tag '1 EVEN'
+WARNING: invalid tag '2 TYPE Ending'
+WARNING: invalid tag '1 _CURRENT N'
+WARNING: invalid tag '1 _CURRENT Y'
+WARNING: invalid tag '1 _CURRENT Y'
++-----+-------------------+--------+------------+-----+-------+------------+----------------------+--------+
+|  ID |        Name       | Gender |  Birthday  | Age | Alive |   Death    |        Child         | Spouse |
++-----+-------------------+--------+------------+-----+-------+------------+----------------------+--------+
+|  I1 |   Manuel Wilder   |   M    | 2100-01-01 |  NA | False | 2000-01-01 |          NA          |   I2   |
+| I10 | Mordechai Thomson |   M    | 1962-05-06 |  58 |  True |     NA     |          NA          |   I9   |
+| I11 |    Knox Wilder    |   M    | 1801-09-10 | 219 |  True |     NA     |          NA          |   NA   |
+| I12 |    Nash Wilder    |   M    | 2006-10-11 |  14 | False | 2006-10-12 |          NA          |   NA   |
+| I13 |   Cohen Thomson   |   M    |     NA     |  NA |  True |     NA     |    ['I10', 'I15']    |  I14   |
+| I14 |  Addyson Thomson  |   F    |     NA     |  NA |  True |     NA     |    ['I10', 'I15']    |  I13   |
+| I15 |  Coraline Thomson |   F    | 1964-12-07 |  56 |  True |     NA     |          NA          |   NA   |
+|  I2 |   Davina Hardin   |   F    | 2001-03-03 |  20 |  True |     NA     |          NA          |   I1   |
+|  I3 |   Cassius Hardin  |   M    | 1981-05-05 |  39 |  True |     NA     |        ['I2']        |   I4   |
+|  I4 |     Ayla Burch    |   F    | 1980-04-04 |  40 |  True |     NA     |        ['I2']        |   I3   |
+|  I5 |   Andres Wilder   |   M    | 1983-08-08 |  37 |  True |     NA     | ['I1', 'I11', 'I12'] |   I7   |
+|  I6 |   Kaitlyn Rogers  |   F    | 1982-07-07 |  38 | False | 1922-07-07 |        ['I1']        |   NA   |
+|  I7 |    Emmy Holder    |   F    | 1984-09-09 |  36 |  True |     NA     |    ['I11', 'I12']    |   I5   |
+|  I8 |    Jamir Wilder   |   M    | 1800-03-04 | 221 | False | 2010-04-05 |        ['I5']        |   I9   |
+|  I9 |   Jimena Sanchez  |   F    | 1960-01-02 |  61 |  True |     NA     |        ['I5']        |  I10   |
++-----+-------------------+--------+------------+-----+-------+------------+----------------------+--------+
++----+------------+------------+------------+-------------------+---------+-----------------+----------------+
+| ID |  Married   |  Divorced  | Husband ID |    Husband Name   | Wife ID |    Wife Name    |    Children    |
++----+------------+------------+------------+-------------------+---------+-----------------+----------------+
+| F1 | 2039-02-02 |     NA     |     I1     |   Manuel Wilder   |    I2   |  Davina Hardin  |       NA       |
+| F2 | 1998-11-11 | 1997-11-12 |     I5     |   Andres Wilder   |    I6   |  Kaitlyn Rogers |     ['I1']     |
+| F3 | 1997-12-12 |     NA     |     I3     |   Cassius Hardin  |    I4   |    Ayla Burch   |     ['I2']     |
+| F4 | 2001-10-10 |     NA     |     I5     |   Andres Wilder   |    I7   |   Emmy Holder   | ['I11', 'I12'] |
+| F5 | 1978-02-03 |     NA     |     I8     |    Jamir Wilder   |    I9   |  Jimena Sanchez |     ['I5']     |
+| F6 | 2011-06-07 |     NA     |    I10     | Mordechai Thomson |    I9   |  Jimena Sanchez |       NA       |
+| F7 |     NA     |     NA     |    I13     |   Cohen Thomson   |   I14   | Addyson Thomson | ['I10', 'I15'] |
++----+------------+------------+------------+-------------------+---------+-----------------+----------------+
+ERROR: INDIVIDUAL: US01: I1: Birthday 2100-01-01 occurs in the future
+ERROR: FAMILY: US01: F1: Marriage 2039-02-02 occurs in the future
+ERROR: INDIVIDUAL: US02: I1: Person id=I1 has marriage before birth.
+ERROR: INDIVIDUAL: US03: I1: Person id=I1 has death before birth.
+ERROR: INDIVIDUAL: US03: I6: Person id=I6 has death before birth.
+ERROR: FAMILY: US04: F2: Family id=F2 has marriage after divorce
+ERROR: FAMILY: US05: F1: Family id=F1 has marriage after death of partner
+ERROR: FAMILY: US05: F2: Family id=F2 has marriage after death of partner
+ERROR: FAMILY: US06: I6: Individual id=I6 has a divorce after her death
+WARNING: INDIVIDUAL: US07: I8: Individual id=I8 is older than 150 years
+WARNING: INDIVIDUAL: US07: I11: Individual id=I11 is older than 150 years
+WARNING: FAMILY: US08: F4: Child id=I11 has birthdate before marriage of parents
