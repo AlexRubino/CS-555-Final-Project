@@ -167,24 +167,25 @@ def validate_parent_age(fams, indis):
     if husband_id is not None:
       husband_birth = indis[husband_id]['BIRT']
 
-    if wife_id is not None:  
+    if wife_id is not None:
       wife_birth = indis[wife_id]['BIRT']
 
     if husband_birth is not None:
       husband_birthday = utils.parse_date(husband_birth)
-
+    
     if wife_birth is not None:
       wife_birthday = utils.parse_date(wife_birth)
-
     
     for cid in fams[fid]['CHIL']:
       if indis[cid]['BIRT'] is not None:
         child_birthday = utils.parse_date(indis[cid]['BIRT'])
+        husband_age = utils.get_age(husband_birthday, child_birthday)
+        wife_age = utils.get_age(wife_birthday, child_birthday)
 
-      if husband_birthday.date().year + 80 < child_birthday.date().year:
+      if husband_age > 80:
         return_data.append((husband_id, f'Husband id = {husband_id} in family id = {fid} is born over 80 years before child id = {cid}.'))
 
-      if wife_birthday.date().year + 60 < child_birthday.date().year:
+      if wife_age > 60:
         return_data.append((wife_id, f'Wife id = {wife_id} in family id = {fid} is born over 60 years before child id = {cid}.'))
 
   return return_data
