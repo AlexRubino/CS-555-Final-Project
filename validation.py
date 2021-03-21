@@ -37,16 +37,27 @@ def validate_dates_before_current(fams, indis):
 def validate_birth_before_marriage(fams, indis):
   return_data = []
 
-  for iid in indis:
-    if indis[iid]['BIRT'] is not None:
-      birthday = utils.parse_date(indis[iid]['BIRT'])
+  for fid in fams:
+    if fams[fid]['MARR'] is not None:
+      marriage_day = utils.parse_date(fams[fid]['MARR'])
 
-      for fid in indis[iid]['FAMS']:
-        if fams[fid]['MARR'] is not None:
-          marriage_day = utils.parse_date(fams[fid]['MARR'])
+      husband_id = fams[fid]['HUSB']
+      wife_id = fams[fid]['WIFE']
 
-          if marriage_day < birthday:
-            return_data.append((iid, f'Person id={iid} has marriage before birth.'))
+      husband_birth = indis[husband_id]['BIRT']
+      wife_birth = indis[wife_id]['BIRT']
+
+      if husband_birth is not None:
+        husband_birthday = utils.parse_date(husband_birth)
+
+      if wife_birth is not None:
+        wife_birthday = utils.parse_date(wife_birth)
+
+      if marriage_day < husband_birthday:
+        return_data.append((husband_id, f'Husband id = {husband_id} in family id = {fid} has marriage before birth.'))
+
+      if marriage_day < wife_birthday:
+        return_data.append((wife_id, f'Wife id = {wife_id} in family id = {fid} has marriage before birth.'))
 
   return return_data
 
@@ -343,5 +354,147 @@ def validate_no_bigamy(fams, indis):
       if intersect(int1, int2):
         ret_data.append((iid, f'Individual id={iid} was in two or more marriages at the same time'))
         break
+
+  return ret_data
+
+'''
+  Implements US12
+  Sprint 2
+  Alex Rubino
+  Mother should be less than 60 years older than her children and father should be less than 80 years older than his children.
+'''
+def validate_parent_age(fams, indis):
+  return_data = []
+
+  for fid in fams:
+    if fams[fid]['HUSB'] is not None:
+      husband_id = fams[fid]['HUSB']
+
+    if fams[fid]['WIFE'] is not None:
+      wife_id = fams[fid]['WIFE']
+
+    if husband_id is not None:
+      husband_birth = indis[husband_id]['BIRT']
+
+    if wife_id is not None:
+      wife_birth = indis[wife_id]['BIRT']
+
+    if husband_birth is not None:
+      husband_birthday = utils.parse_date(husband_birth)
+
+    if wife_birth is not None:
+      wife_birthday = utils.parse_date(wife_birth)
+
+
+    for cid in fams[fid]['CHIL']:
+      if indis[cid]['BIRT'] is not None:
+        child_birthday = utils.parse_date(indis[cid]['BIRT'])
+
+      if husband_birthday.date().year + 80 < child_birthday.date().year:
+        return_data.append((husband_id, f'Husband id = {husband_id} in family id = {fid} is born over 80 years before child id = {cid}.'))
+
+      if wife_birthday.date().year + 60 < child_birthday.date().year:
+        return_data.append((wife_id, f'Wife id = {wife_id} in family id = {fid} is born over 60 years before child id = {cid}.'))
+
+  return return_data
+
+'''
+  Implements US13
+  Sprint 2
+  Luke McEvoy & Alex Rubino
+  Birth dates of siblings should be more than 8 months apart or less than 2 days apart (twins may be born one day apart, e.g. 11:59 PM and 12:02 AM the following calendar day).
+'''
+def validate_sibling_births(fams, indis):
+  return_data = []
+
+  for fid in fams:
+    children_birthdays = []
+
+    for cid in fams[fid]['CHIL']:
+      # Appends every child's birthday into the array
+      children_birthdays.append((cid, indis[cid]['BIRT']))
+
+    for i in range(0, len(children_birthdays)):
+
+      for j in range(i + 1, len(children_birthdays)):
+
+        year_difference = utils.year_difference(children_birthdays[i][1], children_birthdays[j][1])
+
+        month_difference = utils.month_difference(children_birthdays[i][1], children_birthdays[j][1])
+
+        day_difference = utils.day_difference(children_birthdays[i][1], children_birthdays[j][1])
+
+        if year_difference <= 1:
+          if month_difference in range(1,8):
+            return_data.append((fid, f'Siblings with id = {children_birthdays[i][0]} and id = {children_birthdays[j][0]} in fid = {fid} have birth dates between three days and eight months apart.'))
+          elif month_difference == 8:
+            if day_difference == 0:
+              return_data.append((fid, f'Siblings with id = {children_birthdays[i][0]} and id = {children_birthdays[j][0]} in fid = {fid} have birth dates between three days and eight months apart.'))
+          elif month_difference == 0:
+            if day_difference >= 2:
+              return_data.append((fid, f'Siblings with id = {children_birthdays[i][0]} and id = {children_birthdays[j][0]} in fid = {fid} have birth dates between three days and eight months apart.'))
+
+  return return_data
+
+'''
+  Implements US14
+  Sprint 2
+  Zack Schieberl + Ben Mirtchouk
+  A family cannot give birth to sextuplets
+  Only return an error if there are more than 5 kids born on two consecutive days
+'''
+def validate_no_sextuples(fams, indis):
+  birth_buffer = timedelta(days=1)
+
+  ret_data = []
+  for fid in fams:
+    child_births = []
+    for cid in fams[fid]['CHIL']:
+      if indis[cid]['BIRT'] is not None:
+        child_births.append(utils.parse_date(indis[cid]['BIRT']))
+
+    if child_births == []:
+      continue
+
+    child_births.sort()
+    begin_date = child_births[0]
+    adjacent_date = begin_date + birth_buffer
+    couplet_count = 0
+    adjacent_count = 0
+    for birth in child_births:
+      if birth == begin_date:
+        couplet_count += 1
+      elif birth == adjacent_date:
+        adjacent_count += 1
+      elif birth == adjacent_date + birth_buffer:
+        begin_date = adjacent_date
+        adjacent_date = adjacent_date + birth_buffer
+        couplet_count = adjacent_count
+        adjacent_count = 1
+      else:
+        begin_date = birth
+        adjacent_date = begin_date + birth_buffer
+        couplet_count = 1
+        adjacent_count = 0
+
+      if couplet_count + adjacent_count > 5:
+        ret_data.append((fid, f'Family id={fid} has more than 5 children born together'))
+        break
+
+  return ret_data
+
+'''
+  Implements US15
+  Sprint 2
+  Zack Schieberl
+  There cannot be more than 14 siblings in one family
+'''
+def validate_no_excessive_siblings(fams, indis):
+  MAX_SIB = 14
+  ret_data = []
+
+  for fid in fams:
+    if len(fams[fid]['CHIL']) > MAX_SIB:
+      ret_data.append((fid, f'Family id={fid} has more than {MAX_SIB} siblings'))
 
   return ret_data
