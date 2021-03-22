@@ -1,7 +1,5 @@
-import sys
-sys.path.append('../')
 import unittest
-import validation as validation
+import validation
 import project as proj
 
 class TestSiblingBirths(unittest.TestCase):
