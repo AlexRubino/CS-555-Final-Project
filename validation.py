@@ -318,16 +318,10 @@ def validate_marriage_after_fourteen(fams, indis):
   without a DIV (or DEAT) tag are assumed to be ongoing.
 '''
 def validate_no_bigamy(fams, indis):
-  def intersect(int1, int2):
-    a,b = int1
-    c,d = int2
-    return (d is None or d >= a) and (b is None or b >= c)
-
   ret_data = []
 
-  # for a given id, give a list of their marriages
-  marriages = {iid:[] for iid in indis}
   for iid in indis:
+    marriages = []
     for fid in indis[iid]['FAMS']:
       if any(fams[fid][tag] is None for tag in ['HUSB','WIFE','MARR']):
         continue
@@ -344,14 +338,14 @@ def validate_no_bigamy(fams, indis):
         div = utils.parse_date(fams[fid]['DIV'])
         end_date = (div if end_date is None else min(end_date, div))
 
-      marriages[iid].append((begin_date, end_date))
-    marriages[iid].sort()
+      marriages.append((begin_date, end_date))
+    marriages.sort()
 
-    for i in range(len(marriages[iid]) - 1):
-      int1 = marriages[iid][i]
-      int2 = marriages[iid][i+1]
+    for i in range(len(marriages) - 1):
+      int1 = marriages[i]
+      int2 = marriages[i+1]
 
-      if intersect(int1, int2):
+      if utils.interval_intersect(int1, int2):
         ret_data.append((iid, f'Individual id={iid} was in two or more marriages at the same time'))
         break
 
@@ -402,37 +396,31 @@ def validate_parent_age(fams, indis):
   Implements US13
   Sprint 2
   Luke McEvoy & Alex Rubino
-  Birth dates of siblings should be more than 8 months apart or less than 2 days apart (twins may be born one day apart, e.g. 11:59 PM and 12:02 AM the following calendar day).
+  Birth dates of siblings should be more than 8 months apart or less than 2 days apart (twins may be born one day apart, e.g. 11:59 PM and 12:02 AM the following calendar day)
+
+  Function will reject siblings that have birthdays satisfying both conditions:
+  - more than 1 day apart
+  - not less than 8 months (248 days) apart
 '''
 def validate_sibling_births(fams, indis):
   return_data = []
+  one_day = timedelta(days=1)
+  eight_mons = timedelta(days=248)
 
   for fid in fams:
-    children_birthdays = []
+    births = []
 
+    # Appends every child's birthday into the array
     for cid in fams[fid]['CHIL']:
-      # Appends every child's birthday into the array
-      children_birthdays.append((cid, indis[cid]['BIRT']))
+      if indis[cid]['BIRT'] is not None:
+        births.append((cid, utils.parse_date(indis[cid]['BIRT'])))
 
-    for i in range(0, len(children_birthdays)):
+    for i in range(len(births)):
+      for j in range(i+1, len(births)):
+        delta = abs(births[i][1] - births[j][1])
 
-      for j in range(i + 1, len(children_birthdays)):
-
-        year_difference = utils.year_difference(children_birthdays[i][1], children_birthdays[j][1])
-
-        month_difference = utils.month_difference(children_birthdays[i][1], children_birthdays[j][1])
-
-        day_difference = utils.day_difference(children_birthdays[i][1], children_birthdays[j][1])
-
-        if year_difference <= 1:
-          if month_difference in range(1,8):
-            return_data.append((fid, f'Siblings with id = {children_birthdays[i][0]} and id = {children_birthdays[j][0]} in fid = {fid} have birth dates between three days and eight months apart.'))
-          elif month_difference == 8:
-            if day_difference == 0:
-              return_data.append((fid, f'Siblings with id = {children_birthdays[i][0]} and id = {children_birthdays[j][0]} in fid = {fid} have birth dates between three days and eight months apart.'))
-          elif month_difference == 0:
-            if day_difference >= 2:
-              return_data.append((fid, f'Siblings with id = {children_birthdays[i][0]} and id = {children_birthdays[j][0]} in fid = {fid} have birth dates between three days and eight months apart.'))
+        if one_day < delta <= eight_mons:
+          return_data.append((fid, f'Siblings with id={births[i][0]} and id={births[j][0]} in fid={fid} have birth dates more than one day and not less than eight months apart.'))
 
   return return_data
 
@@ -444,40 +432,28 @@ def validate_sibling_births(fams, indis):
   Only return an error if there are more than 5 kids born on two consecutive days
 '''
 def validate_no_sextuples(fams, indis):
-  birth_buffer = timedelta(days=1)
+  one_day = timedelta(days=1)
 
   ret_data = []
   for fid in fams:
-    child_births = []
-    for cid in fams[fid]['CHIL']:
-      if indis[cid]['BIRT'] is not None:
-        child_births.append(utils.parse_date(indis[cid]['BIRT']))
-
-    if child_births == []:
+    child_births = [indis[cid]['BIRT'] for cid in fams[fid]['CHIL'] if indis[cid]['BIRT'] is not None]
+    if len(child_births) <= 5:
       continue
 
-    child_births.sort()
-    begin_date = child_births[0]
-    adjacent_date = begin_date + birth_buffer
-    couplet_count = 0
-    adjacent_count = 0
+    birth_freq = {}
     for birth in child_births:
-      if birth == begin_date:
-        couplet_count += 1
-      elif birth == adjacent_date:
-        adjacent_count += 1
-      elif birth == adjacent_date + birth_buffer:
-        begin_date = adjacent_date
-        adjacent_date = adjacent_date + birth_buffer
-        couplet_count = adjacent_count
-        adjacent_count = 1
-      else:
-        begin_date = birth
-        adjacent_date = begin_date + birth_buffer
-        couplet_count = 1
-        adjacent_count = 0
+      if birth not in birth_freq:
+        birth_freq[birth] = 0
+      birth_freq[birth] += 1
 
-      if couplet_count + adjacent_count > 5:
+    dates = sorted(birth_freq.keys())
+    parsed_dates = [utils.parse_date(d) for d in dates]
+    for i in range(len(dates)):
+      count = birth_freq[dates[i]]
+      if i + 1 < len(dates) and parsed_dates[i+1] - parsed_dates[i] == one_day:
+        count = birth_freq[dates[i]] + birth_freq[dates[i+1]]
+
+      if count > 5:
         ret_data.append((fid, f'Family id={fid} has more than 5 children born together'))
         break
 
