@@ -25,6 +25,12 @@ WARNING: invalid tag '2 _MARNM Hardin'
 WARNING: invalid tag '2 GIVN Andres'
 WARNING: invalid tag '2 SURN Wilder'
 WARNING: invalid tag '2 _MARNM Wilder'
+WARNING: invalid tag '2 GIVN Angela'
+WARNING: invalid tag '2 SURN Wilder'
+WARNING: invalid tag '2 _MARNM Wilder'
+WARNING: invalid tag '2 GIVN Dariel'
+WARNING: invalid tag '2 SURN Wilder'
+WARNING: invalid tag '2 _MARNM Wilder'
 WARNING: invalid tag '2 GIVN Kaitlyn'
 WARNING: invalid tag '2 SURN Rogers'
 WARNING: invalid tag '2 _MARNM Wilder'
@@ -74,29 +80,31 @@ WARNING: invalid tag '1 _CURRENT Y'
 | I13 |   Cohen Thomson   |   M    |     NA     |  NA |  True |     NA     |    ['I10', 'I15']    |  I14   |
 | I14 |  Addyson Thomson  |   F    |     NA     |  NA |  True |     NA     |    ['I10', 'I15']    |  I13   |
 | I15 |  Coraline Thomson |   F    | 1964-12-07 |  56 |  True |     NA     |          NA          |   NA   |
+| I16 |   Angela Wilder   |   F    |     NA     |  NA |  True |     NA     |          NA          |   NA   |
+| I17 |   Dariel Wilder   |   M    |     NA     |  NA |  True |     NA     |          NA          |   NA   |
 |  I2 |   Davina Hardin   |   F    | 2001-03-03 |  20 |  True |     NA     |          NA          |   I1   |
 |  I3 |   Cassius Hardin  |   M    | 1981-05-05 |  39 |  True |     NA     |        ['I2']        |   I4   |
 |  I4 |     Ayla Burch    |   F    | 1980-04-04 |  40 |  True |     NA     |        ['I2']        |   I3   |
 |  I5 |   Andres Wilder   |   M    | 1983-08-08 |  37 |  True |     NA     | ['I1', 'I11', 'I12'] |   I7   |
 |  I6 |   Kaitlyn Rogers  |   F    | 1982-07-07 |  38 | False | 1922-07-07 |        ['I1']        |   NA   |
 |  I7 |    Emmy Holder    |   F    | 1984-09-09 |  36 |  True |     NA     |    ['I11', 'I12']    |   I5   |
-|  I8 |    Jamir Wilder   |   M    | 1800-03-04 | 221 | False | 2010-04-05 |        ['I5']        |   I9   |
-|  I9 |   Jimena Sanchez  |   F    | 1960-01-02 |  61 |  True |     NA     |        ['I5']        |  I10   |
+|  I8 |    Jamir Wilder   |   M    | 1800-03-04 | 221 | False | 2010-04-05 | ['I5', 'I16', 'I17'] |   I9   |
+|  I9 |   Jimena Sanchez  |   F    | 1960-01-02 |  61 |  True |     NA     | ['I5', 'I16', 'I17'] |  I10   |
 +-----+-------------------+--------+------------+-----+-------+------------+----------------------+--------+
-+----+------------+------------+------------+-------------------+---------+-----------------+----------------+
-| ID |  Married   |  Divorced  | Husband ID |    Husband Name   | Wife ID |    Wife Name    |    Children    |
-+----+------------+------------+------------+-------------------+---------+-----------------+----------------+
-| F1 | 2039-02-02 |     NA     |     I1     |   Manuel Wilder   |    I2   |  Davina Hardin  |       NA       |
-| F2 | 1998-11-11 | 1997-11-12 |     I5     |   Andres Wilder   |    I6   |  Kaitlyn Rogers |     ['I1']     |
-| F3 | 1997-12-12 |     NA     |     I3     |   Cassius Hardin  |    I4   |    Ayla Burch   |     ['I2']     |
-| F4 | 2001-10-10 |     NA     |     I5     |   Andres Wilder   |    I7   |   Emmy Holder   | ['I11', 'I12'] |
-| F5 | 1978-02-03 |     NA     |     I8     |    Jamir Wilder   |    I9   |  Jimena Sanchez |     ['I5']     |
-| F6 | 2011-06-07 |     NA     |    I10     | Mordechai Thomson |    I9   |  Jimena Sanchez |       NA       |
-| F7 |     NA     |     NA     |    I13     |   Cohen Thomson   |   I14   | Addyson Thomson | ['I10', 'I15'] |
-+----+------------+------------+------------+-------------------+---------+-----------------+----------------+
++----+------------+------------+------------+-------------------+---------+-----------------+----------------------+
+| ID |  Married   |  Divorced  | Husband ID |    Husband Name   | Wife ID |    Wife Name    |       Children       |
++----+------------+------------+------------+-------------------+---------+-----------------+----------------------+
+| F1 | 2039-02-02 |     NA     |     I1     |   Manuel Wilder   |    I2   |  Davina Hardin  |          NA          |
+| F2 | 1998-11-11 | 1997-11-12 |     I5     |   Andres Wilder   |    I6   |  Kaitlyn Rogers |        ['I1']        |
+| F3 | 1997-12-12 |     NA     |     I3     |   Cassius Hardin  |    I4   |    Ayla Burch   |        ['I2']        |
+| F4 | 2001-10-10 |     NA     |     I5     |   Andres Wilder   |    I7   |   Emmy Holder   |    ['I11', 'I12']    |
+| F5 | 1978-02-03 |     NA     |     I8     |    Jamir Wilder   |    I9   |  Jimena Sanchez | ['I5', 'I16', 'I17'] |
+| F6 | 2011-06-07 |     NA     |    I10     | Mordechai Thomson |    I9   |  Jimena Sanchez |          NA          |
+| F7 |     NA     |     NA     |    I13     |   Cohen Thomson   |   I14   | Addyson Thomson |    ['I10', 'I15']    |
++----+------------+------------+------------+-------------------+---------+-----------------+----------------------+
 ERROR: INDIVIDUAL: US01: I1: Birthday 2100-01-01 occurs in the future
 ERROR: FAMILY: US01: F1: Marriage 2039-02-02 occurs in the future
-ERROR: INDIVIDUAL: US02: I1: Person id=I1 has marriage before birth.
+ERROR: INDIVIDUAL: US02: I1: Husband id=I1 in family id=F1 has marriage before birth.
 ERROR: INDIVIDUAL: US03: I1: Person id=I1 has death before birth.
 ERROR: INDIVIDUAL: US03: I6: Person id=I6 has death before birth.
 ERROR: FAMILY: US04: F2: Family id=F2 has marriage after divorce

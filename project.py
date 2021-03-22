@@ -20,8 +20,8 @@ SUPPORTED_TAGS = {
 
 DATE_TAGS = ['BIRT', 'DEAT', 'MARR', 'DIV']
 
-INDI_PARAMS = ['ID', 'NAME', 'SEX', 'BIRT', 'DEAT', 'FAMC', 'FAMS']
-FAM_PARAMS =  ['ID', 'HUSB', 'WIFE', 'CHIL', 'MARR', 'DIV']
+INDI_PARAMS = ['NAME', 'SEX', 'BIRT', 'DEAT', 'FAMC', 'FAMS']
+FAM_PARAMS =  ['HUSB', 'WIFE', 'CHIL', 'MARR', 'DIV']
 
 MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
 MONTH_NUM = {month : str(i+1).zfill(2) for i, month in enumerate(MONTHS)}
@@ -155,7 +155,7 @@ def get_indis(root_nodes):
         if nd.tag not in INDI_PARAMS:
           continue
         if nd.tag == 'FAMS':
-          indi_data[nd.tag].append(nd.args[0])
+          indi_data[nd.tag].append(nd.get_arg())
         else:
           indi_data[nd.tag] = nd.get_arg()
 
@@ -173,7 +173,6 @@ def get_fams(root_nodes):
 
       fam_data = { param: None for param in FAM_PARAMS }
       fam_data['CHIL'] = []
-      fam_data['ID'] = root.args[0]
 
       for nd in root.children:
         if nd.tag not in FAM_PARAMS:

@@ -63,6 +63,20 @@
 1 FAMS F2
 1 FAMS F4
 1 FAMC F5
+0 I16 INDI
+1 NAME Angela /Wilder/
+2 GIVN Angela
+2 SURN Wilder
+2 _MARNM Wilder
+1 SEX F
+1 FAMC F5
+0 I17 INDI
+1 NAME Dariel /Wilder/
+2 GIVN Dariel
+2 SURN Wilder
+2 _MARNM Wilder
+1 SEX M
+1 FAMC F5
 0 I6 INDI
 1 NAME Kaitlyn /Rogers/
 2 GIVN Kaitlyn
@@ -193,6 +207,8 @@
 1 HUSB I8
 1 WIFE I9
 1 CHIL I5
+1 CHIL I16
+1 CHIL I17
 1 MARR
 2 DATE 3 FEB 1978
 1 EVEN

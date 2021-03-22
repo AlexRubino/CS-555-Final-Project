@@ -13,6 +13,8 @@ import US12_TestParentAge as US12
 import US13_TestSiblingBirths as US13
 import US14_TestNoSextuplets as US14
 import US15_TestNoExcessiveSiblings as US15
+import US17_TestNoDescendantMarriage as US17
+import US19_TestNoCousinMarriage as US19
 
 def sprint02_suite():
   loader = unittest.TestLoader()
@@ -25,6 +27,8 @@ def sprint02_suite():
   suite.addTests(loader.loadTestsFromModule(US13))
   suite.addTests(loader.loadTestsFromModule(US14))
   suite.addTests(loader.loadTestsFromModule(US15))
+  suite.addTests(loader.loadTestsFromModule(US17))
+  suite.addTests(loader.loadTestsFromModule(US19))
 
   return suite
 

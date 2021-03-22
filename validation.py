@@ -462,3 +462,53 @@ def validate_no_excessive_siblings(fams, indis):
       ret_data.append((fid, f'Family id={fid} has more than {MAX_SIB} siblings'))
 
   return ret_data
+
+'''
+  Implements US17: No marriages to descendants
+
+  A is a descendant of B iff we can reach B from A via a
+  series of one or more parent relationships
+'''
+def validate_no_descendant_marriage(fams, indis):
+  ret_data = []
+
+  for fid in fams:
+    if fams[fid]['HUSB'] is None or fams[fid]['WIFE'] is None:
+      continue
+    husb = fams[fid]['HUSB']
+    wife = fams[fid]['WIFE']
+
+    for desc, ance in [(husb, wife), (wife, husb)]:
+      if utils.is_descendant(desc, ance, fams, indis):
+        ret_data.append((fid, f'Family fid={fid} is a marriage of ancestor id={ance} and descendant id={desc}'))
+        break
+
+  return ret_data
+
+'''
+  Implements US19: First cousins should not marry
+
+  - A is a first cousin of B <-> A is a descendant of B's aunt/uncle
+                              OR B is a descendant of A's aunt/uncle
+  - A is the uncle of B      <-> one of B's parents is a sibling of A
+  - A is a sibling of B      <-> A and B CHIL tags appear in the same FAM
+'''
+def validate_no_cousin_marriage(fams, indis):
+  ret_data = []
+
+  for fid in fams:
+    if fams[fid]['HUSB'] is None or fams[fid]['WIFE'] is None:
+      continue
+    husb = fams[fid]['HUSB']
+    wife = fams[fid]['WIFE']
+
+    for id1, id2 in [(husb, wife), (wife, husb)]:
+      id1_parents = utils.get_parents(id1, fams, indis)
+      # this includes aunts as well
+      id1_uncles = [iid for pid in id1_parents for iid in utils.get_siblings(pid, fams, indis)]
+
+      if any(utils.is_descendant(id2, uncle, fams, indis) for uncle in id1_uncles):
+        ret_data.append((fid, f'Family fid={fid} is a marriage of first cousins id={husb} and id={wife}'))
+        break
+
+  return ret_data
