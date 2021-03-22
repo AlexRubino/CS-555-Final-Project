@@ -91,7 +91,7 @@ class TestDivorceBeforeDeath(unittest.TestCase):
 
     def test_both_over(self):
         ged = self.generate_fam_2(
-            husband=('01 JAN 2010', '01 JAN 221323542354324'),
+            husband=('01 JAN 2010', '01 JAN 9999'),
             wife=('22 DEC 1', '31 MAR 2213'),
             marriage=(None, None)
         )

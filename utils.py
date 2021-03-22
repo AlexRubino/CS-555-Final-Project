@@ -7,22 +7,6 @@ def parse_date(str_date):
 def stringify_date(date):
   return date.strftime("%Y-%m-%d")
 
-# Helper function for checking if a date is parsable or not
-# Returns a boolean
-def parseable_date(str_date):
-  if str_date == None:
-    return False
-  if not isinstance(str_date, str):
-    return False
-  fields = str_date.split("-")
-  if len(fields) != 3:
-    return False
-  year = int(fields[0])
-  # The maximum year for a datetime object is 9999
-  if year <= 0 or year >= 9999:
-    return False
-  return True
-
 def current_date():
   return datetime.now()
 

@@ -194,27 +194,15 @@ def validate_divorce_before_death(fams, indis):
 def validate_reasonable_age(fams, indis):
   ret_data = []
   lifetime = 150
-  current_date = utils.current_date()
 
   for iid in indis:
-    death_date = None
-    if indis[iid]['DEAT'] is not None:
-      # If the input date is outside the scope of a datetime object,
-      # then return the error message
-      if not utils.parseable_date(indis[iid]['DEAT']):
-        ret_data.append((iid, f'Individual id={iid} is older than {lifetime} years'))
-        continue
-
-      death_date = utils.parse_date(indis[iid]['DEAT'])
-    else:
-      death_date = current_date
-
     if indis[iid]['BIRT'] is not None:
-      if not utils.parseable_date(indis[iid]['BIRT']):
-        ret_data.append((iid, f'Individual id={iid} is older than {lifetime} years'))
-        continue
-
       birth_date = utils.parse_date(indis[iid]['BIRT'])
+      death_date = utils.current_date()
+
+      if indis[iid]['DEAT'] is not None:
+        death_date = utils.parse_date(indis[iid]['DEAT'])
+
       if utils.get_age(birth_date, death_date) > lifetime:
         ret_data.append((iid, f'Individual id={iid} is older than {lifetime} years'))
 
