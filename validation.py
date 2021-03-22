@@ -54,10 +54,10 @@ def validate_birth_before_marriage(fams, indis):
         wife_birthday = utils.parse_date(wife_birth)
 
       if marriage_day < husband_birthday:
-        return_data.append((husband_id, f'Husband id = {husband_id} in family id = {fid} has marriage before birth.'))
+        return_data.append((husband_id, f'Husband id={husband_id} in family id={fid} has marriage before birth.'))
 
       if marriage_day < wife_birthday:
-        return_data.append((wife_id, f'Wife id = {wife_id} in family id = {fid} has marriage before birth.'))
+        return_data.append((wife_id, f'Wife id={wife_id} in family id={fid} has marriage before birth.'))
 
   return return_data
 
