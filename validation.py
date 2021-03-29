@@ -367,15 +367,16 @@ def validate_parent_age(fams, indis):
     if wife_birth is not None:
       wife_birthday = utils.parse_date(wife_birth)
 
-
     for cid in fams[fid]['CHIL']:
       if indis[cid]['BIRT'] is not None:
         child_birthday = utils.parse_date(indis[cid]['BIRT'])
+        husband_age = utils.get_age(husband_birthday, child_birthday)
+        wife_age = utils.get_age(wife_birthday, child_birthday)
 
-      if husband_birthday.date().year + 80 < child_birthday.date().year:
+      if husband_age > 80:
         return_data.append((husband_id, f'Husband id = {husband_id} in family id = {fid} is born over 80 years before child id = {cid}.'))
 
-      if wife_birthday.date().year + 60 < child_birthday.date().year:
+      if wife_age > 60:
         return_data.append((wife_id, f'Wife id = {wife_id} in family id = {fid} is born over 60 years before child id = {cid}.'))
 
   return return_data
@@ -462,6 +463,33 @@ def validate_no_excessive_siblings(fams, indis):
       ret_data.append((fid, f'Family id={fid} has more than {MAX_SIB} siblings'))
 
   return ret_data
+
+'''
+  Implements US16
+  Sprint 2
+  Luke McEvoy
+  All male members of a family should have the same last name
+'''
+def validate_all_men_have_same_last_name(fams, indis):
+  familyMen = []
+  retData = []
+  for fid in fams:
+
+    # Add all male children
+    for cid in fams[fid]['CHIL']:
+      if indis[cid]['SEX'] == 'M':
+        lastName = indis[cid]['NAME'].split()[-1]
+        familyMen.append(lastName)
+
+    # Add husband
+    if fams[fid]['HUSB'] is not None:
+      lastName = indis[fams[fid]['HUSB']]['NAME'].split()[-1]
+      familyMen.append(lastName)
+
+    if len(set(familyMen)) != 1:
+      retData.append((fid, f'Family id={fid} has males with a differnt last name'))
+
+  return retData
 
 '''
   Implements US17: No marriages to descendants
