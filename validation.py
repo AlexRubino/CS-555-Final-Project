@@ -424,3 +424,32 @@ def validate_no_excessive_siblings(fams, indis):
       ret_data.append((fid, f'Family id={fid} has more than {MAX_SIB} siblings'))
 
   return ret_data
+
+'''
+  Implements US16
+  Sprint 2
+  Luke McEvoy
+  All male members of a family should have the same last name
+'''
+def validate_all_men_have_same_last_name(fams, indis):
+  familyMen = [] 
+  retData = []
+  for fid in fams:
+
+    # Add all male children
+    for cid in fams[fid]['CHIL']:
+      if indis[cid]['SEX'] == 'M':
+        lastName = indis[cid]['NAME'].split()[-1]
+        familyMen.append(lastName)
+
+    # Add husband
+    if fams[fid]['HUSB'] is not None:
+      lastName = indis[fams[fid]['HUSB']]['NAME'].split()[-1]
+      familyMen.append(lastName)
+    
+    if len(set(familyMen)) != 1:
+      retData.append((fid, f'Family id={fid} has males with a differnt last name'))
+
+  return retData
+
+
