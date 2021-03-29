@@ -435,9 +435,6 @@ def validate_all_men_have_same_last_name(fams, indis):
   familyMen = [] 
   retData = []
   for fid in fams:
-    # for cid in fams[fid]['CHIL']:
-    #   print(indis[cid])
-
 
     # Add all male children
     for cid in fams[fid]['CHIL']:
@@ -447,7 +444,7 @@ def validate_all_men_have_same_last_name(fams, indis):
 
     # Add husband
     if fams[fid]['HUSB'] is not None:
-      lastName = indis[cid]['NAME'].split()[-1]
+      lastName = indis[fams[fid]['HUSB']]['NAME'].split()[-1]
       familyMen.append(lastName)
     
     if len(set(familyMen)) != 1:
