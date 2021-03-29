@@ -432,8 +432,13 @@ def validate_no_excessive_siblings(fams, indis):
   All male members of a family should have the same last name
 '''
 def validate_all_men_have_same_last_name(fams, indis):
-  familyMen, retData = [], []
+  familyMen = [] 
+  retData = []
   for fid in fams:
+    # for cid in fams[fid]['CHIL']:
+    #   print(indis[cid])
+
+
     # Add all male children
     for cid in fams[fid]['CHIL']:
       if indis[cid]['SEX'] == 'M':
@@ -447,5 +452,7 @@ def validate_all_men_have_same_last_name(fams, indis):
     
     if len(set(familyMen)) != 1:
       retData.append((fid, f'Family id={fid} has males with a differnt last name'))
+
+  return retData
 
 
