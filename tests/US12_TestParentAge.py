@@ -1,14 +1,12 @@
-import sys
-sys.path.append('../')
 import unittest
-import validation as validation
+import validation
 import project as proj
 
 class TestBirthBeforeMarriage(unittest.TestCase):
     '''
-        Helper function which generates a minimal family of two parents 
-        and a child with a given marriage date and child birthdate. 
-        
+        Helper function which generates a minimal family of two parents
+        and a child with a given marriage date and child birthdate.
+
         Optionally takes in the family ID (which is used to generate
         individual IDs as well).
     '''
@@ -59,11 +57,11 @@ class TestBirthBeforeMarriage(unittest.TestCase):
         ]
         # This removes all the empty lines
         return [i for i in ret if i]
-    
+
     def test1(self):
         ged = self.generate_fam_2(
-            husband=('01 JAN 2000', None), 
-            wife=('01 JAN 2010', None), 
+            husband=('01 JAN 2000', None),
+            wife=('01 JAN 2010', None),
             child=('01 JAN 2050', None)
         )
         fams, indis = proj.parse_ged_data(ged)
@@ -72,43 +70,43 @@ class TestBirthBeforeMarriage(unittest.TestCase):
 
     def test2(self):
         ged = self.generate_fam_2(
-            husband=('01 JAN 1900', None), 
-            wife=('01 JAN 2010', None), 
+            husband=('01 JAN 1900', None),
+            wife=('01 JAN 2010', None),
             child=('01 JAN 2050', None)
         )
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_parent_age(fams, indis)
-        self.assertEqual(output, [('I1_1', 'Husband id = I1_1 in family id = F1 is born over 80 years before child id = I1_3.')])
+        self.assertEqual(output, [('I1_1', 'Husband id=I1_1 in family id=F1 was born over 80 years before child id=I1_3.')])
 
     def test3(self):
         ged = self.generate_fam_2(
-            husband=('01 JAN 2000', None), 
-            wife=('01 JAN 1910', None), 
+            husband=('01 JAN 2000', None),
+            wife=('01 JAN 1910', None),
             child=('01 JAN 2050', None)
         )
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_parent_age(fams, indis)
-        self.assertEqual(output, [('I1_2', 'Wife id = I1_2 in family id = F1 is born over 60 years before child id = I1_3.')])
+        self.assertEqual(output, [('I1_2', 'Wife id=I1_2 in family id=F1 was born over 60 years before child id=I1_3.')])
 
     def test4(self):
         ged = self.generate_fam_2(
-            husband=('01 JAN 1900', None), 
-            wife=('01 JAN 1910', None), 
+            husband=('01 JAN 1900', None),
+            wife=('01 JAN 1910', None),
             child=('01 JAN 2050', None)
         )
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_parent_age(fams, indis)
-        self.assertEqual(output, [(('I1_1', 'Husband id = I1_1 in family id = F1 is born over 80 years before child id = I1_3.')), ('I1_2', 'Wife id = I1_2 in family id = F1 is born over 60 years before child id = I1_3.')])
-    
+        self.assertEqual(output, [(('I1_1', 'Husband id=I1_1 in family id=F1 was born over 80 years before child id=I1_3.')), ('I1_2', 'Wife id=I1_2 in family id=F1 was born over 60 years before child id=I1_3.')])
+
     def test5(self):
         ged = self.generate_fam_2(
-            husband=('01 JAN 1900', None), 
-            wife=('01 JAN 1910', None), 
+            husband=('01 JAN 1900', None),
+            wife=('01 JAN 1910', None),
             child=('01 JAN 1981', None)
         )
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_parent_age(fams, indis)
-        self.assertEqual(output, [(('I1_1', 'Husband id = I1_1 in family id = F1 is born over 80 years before child id = I1_3.')), ('I1_2', 'Wife id = I1_2 in family id = F1 is born over 60 years before child id = I1_3.')])
+        self.assertEqual(output, [(('I1_1', 'Husband id=I1_1 in family id=F1 was born over 80 years before child id=I1_3.')), ('I1_2', 'Wife id=I1_2 in family id=F1 was born over 60 years before child id=I1_3.')])
 
 if __name__ == '__main__':
     unittest.main()

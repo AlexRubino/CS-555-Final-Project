@@ -1,14 +1,12 @@
-import sys
-sys.path.append('../')
 import unittest
-import validation as validation
+import validation
 import project as proj
 
 class TestNoExcessiveSiblings(unittest.TestCase):
     '''
-        Helper function which generates a minimal family of two parents 
-        and a child with a given marriage date and child birthdate. 
-        
+        Helper function which generates a minimal family of two parents
+        and a child with a given marriage date and child birthdate.
+
         Optionally takes in the family ID (which is used to generate
         individual IDs as well).
     '''
@@ -41,7 +39,7 @@ class TestNoExcessiveSiblings(unittest.TestCase):
             '1 MARR',
             f'2 DATE {marriage}'
         ]
-    
+
     def test_ok_0(self):
         ged = self.generate_fam_1(
             marriage="01 JAN 2000",

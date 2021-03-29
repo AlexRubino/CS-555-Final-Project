@@ -1,6 +1,5 @@
-import utils as utils
 from datetime import timedelta
-
+import utils
 
 '''
   Implements US01: Dates before current date
@@ -8,9 +7,9 @@ from datetime import timedelta
 def validate_dates_before_current(fams, indis):
   ret_data = []
 
-  def check(date_str, is_indi, id, type):
+  def check(date_str, is_indi, oid, date_type):
     if utils.parse_date(date_str) > utils.current_date():
-      ret_data.append((is_indi, id, f'{type} {date_str} occurs in the future'))
+      ret_data.append((oid, f'{date_type} {date_str} occurs in the future'))
 
   for iid in indis:
     if indis[iid]['BIRT'] is not None:
@@ -55,10 +54,10 @@ def validate_birth_before_marriage(fams, indis):
         wife_birthday = utils.parse_date(wife_birth)
 
       if marriage_day < husband_birthday:
-        return_data.append((husband_id, f'Husband id = {husband_id} in family id = {fid} has marriage before birth.'))
+        return_data.append((husband_id, f'Husband id={husband_id} in family id={fid} has marriage before birth.'))
 
       if marriage_day < wife_birthday:
-        return_data.append((wife_id, f'Wife id = {wife_id} in family id = {fid} has marriage before birth.'))
+        return_data.append((wife_id, f'Wife id={wife_id} in family id={fid} has marriage before birth.'))
 
   return return_data
 
@@ -195,27 +194,15 @@ def validate_divorce_before_death(fams, indis):
 def validate_reasonable_age(fams, indis):
   ret_data = []
   lifetime = 150
-  current_date = utils.current_date()
 
   for iid in indis:
-    death_date = None
-    if indis[iid]['DEAT'] is not None:
-      # If the input date is outside the scope of a datetime object,
-      # then return the error message
-      if not utils.parseable_date(indis[iid]['DEAT']):
-        ret_data.append((iid, f'Individual id={iid} is older than {lifetime} years'))
-        continue
-
-      death_date = utils.parse_date(indis[iid]['DEAT'])
-    else:
-      death_date = current_date
-
     if indis[iid]['BIRT'] is not None:
-      if not utils.parseable_date(indis[iid]['BIRT']):
-        ret_data.append((iid, f'Individual id={iid} is older than {lifetime} years'))
-        continue
-
       birth_date = utils.parse_date(indis[iid]['BIRT'])
+      death_date = utils.current_date()
+
+      if indis[iid]['DEAT'] is not None:
+        death_date = utils.parse_date(indis[iid]['DEAT'])
+
       if utils.get_age(birth_date, death_date) > lifetime:
         ret_data.append((iid, f'Individual id={iid} is older than {lifetime} years'))
 
@@ -245,6 +232,32 @@ def validate_marriage_before_child(fams, indis):
           birth = utils.parse_date(indis[cid]['BIRT'])
           if birth < marriage:
             ret_data.append((fid, f'Child id={cid} has birthdate before marriage of parents'))
+
+  return ret_data
+
+'''
+  Implements US09: Birth before death of parents
+
+  We enforce
+  - child birth <= mother death
+  - child birth <= father death + 1 year
+'''
+def validate_birth_before_parent_death(fams, indis):
+  ret_data = []
+
+  for iid in indis:
+    if indis[iid]['FAMC'] is None or indis[iid]['BIRT'] is None:
+      continue
+    fid = indis[iid]['FAMC']
+    birthdate = utils.parse_date(indis[iid]['BIRT'])
+
+    for par in ['HUSB', 'WIFE']:
+      if fams[fid][par] is None or indis[fams[fid][par]]['DEAT'] is None:
+        continue
+      par_deat = utils.parse_date(indis[fams[fid][par]]['DEAT'])
+      if par == 'WIFE' and par_deat < birthdate or \
+         par == 'HUSB' and par_deat + timedelta(days=365) < birthdate:
+        ret_data.append((iid, f'Individual {iid} was born after parent {fams[fid][par]} death'))
 
   return ret_data
 
@@ -284,48 +297,43 @@ def validate_marriage_after_fourteen(fams, indis):
     return invalid_marriages
 
 '''
-  Implements US14
-  Sprint 2
-  Zack Schieberl + Ben Mirtchouk
-  A family cannot give birth to sextuplets
-  Only return an error if there are more than 5 kids born on two consecutive days
+  Implements US11: No bigamy
+
+  Marriages are terminated by either divorce or death
+  no unterminated marriages may intersect.
+
+  Marriages without a MARR tag are ignored and marriages
+  without a DIV (or DEAT) tag are assumed to be ongoing.
 '''
-def validate_no_sextuples(fams, indis):
-  birth_buffer = timedelta(days=1)
-
+def validate_no_bigamy(fams, indis):
   ret_data = []
-  for fid in fams:
-    child_births = []
-    for cid in fams[fid]['CHIL']:
-      if indis[cid]['BIRT'] is not None:
-        child_births.append(utils.parse_date(indis[cid]['BIRT']))
 
-    if child_births == []:
-      continue
+  for iid in indis:
+    marriages = []
+    for fid in indis[iid]['FAMS']:
+      if any(fams[fid][tag] is None for tag in ['HUSB','WIFE','MARR']):
+        continue
 
-    child_births.sort()
-    begin_date = child_births[0]
-    adjacent_date = begin_date + birth_buffer
-    couplet_count = 0
-    adjacent_count = 0
-    for birth in child_births:
-      if birth == begin_date:
-        couplet_count += 1
-      elif birth == adjacent_date:
-        adjacent_count += 1
-      elif birth == adjacent_date + birth_buffer:
-        begin_date = adjacent_date
-        adjacent_date = adjacent_date + birth_buffer
-        couplet_count = adjacent_count
-        adjacent_count = 1
-      else:
-        begin_date = birth
-        adjacent_date = begin_date + birth_buffer
-        couplet_count = 1
-        adjacent_count = 0
+      begin_date = utils.parse_date(fams[fid]['MARR'])
+      end_date = None
+      if indis[fams[fid]['HUSB']]['DEAT'] is not None:
+        deat = utils.parse_date(indis[fams[fid]['HUSB']]['DEAT'])
+        end_date = (deat if end_date is None else min(end_date, deat))
+      if indis[fams[fid]['WIFE']]['DEAT'] is not None:
+        deat = utils.parse_date(indis[fams[fid]['WIFE']]['DEAT'])
+        end_date = (deat if end_date is None else min(end_date, deat))
+      if fams[fid]['DIV'] is not None:
+        div = utils.parse_date(fams[fid]['DIV'])
+        end_date = (div if end_date is None else min(end_date, div))
 
-      if couplet_count + adjacent_count > 5:
-        ret_data.append((fid, f'Family id={fid} has more than 5 children born together'))
+      marriages.append((begin_date, end_date))
+    marriages.sort()
+    for i in range(len(marriages) - 1):
+      int1 = marriages[i]
+      int2 = marriages[i+1]
+
+      if utils.interval_intersect(int1, int2):
+        ret_data.append((iid, f'Individual id={iid} was in two or more marriages at the same time'))
         break
 
   return ret_data
@@ -342,33 +350,29 @@ def validate_parent_age(fams, indis):
   for fid in fams:
     if fams[fid]['HUSB'] is not None:
       husband_id = fams[fid]['HUSB']
+      husband_birth = indis[husband_id]['BIRT']
+      if husband_birth is not None:
+        husband_birthday = utils.parse_date(husband_birth)
 
     if fams[fid]['WIFE'] is not None:
       wife_id = fams[fid]['WIFE']
-
-    if husband_id is not None:
-      husband_birth = indis[husband_id]['BIRT']
-
-    if wife_id is not None:
       wife_birth = indis[wife_id]['BIRT']
+      if wife_birth is not None:
+        wife_birthday = utils.parse_date(wife_birth)
 
-    if husband_birth is not None:
-      husband_birthday = utils.parse_date(husband_birth)
-    
-    if wife_birth is not None:
-      wife_birthday = utils.parse_date(wife_birth)
-  
     for cid in fams[fid]['CHIL']:
       if indis[cid]['BIRT'] is not None:
         child_birthday = utils.parse_date(indis[cid]['BIRT'])
-        husband_age = utils.get_age(husband_birthday, child_birthday)
-        wife_age = utils.get_age(wife_birthday, child_birthday)
 
-      if husband_age > 80:
-        return_data.append((husband_id, f'Husband id = {husband_id} in family id = {fid} is born over 80 years before child id = {cid}.'))
+        if husband_birthday is not None:
+          husband_age = utils.get_age(husband_birthday, child_birthday)
+          if husband_age > 80:
+            return_data.append((husband_id, f'Husband id={husband_id} in family id={fid} was born over 80 years before child id={cid}.'))
 
-      if wife_age > 60:
-        return_data.append((wife_id, f'Wife id = {wife_id} in family id = {fid} is born over 60 years before child id = {cid}.'))
+        if wife_birthday is not None:
+          wife_age = utils.get_age(wife_birthday, child_birthday)
+          if wife_age > 60:
+            return_data.append((wife_id, f'Wife id={wife_id} in family id={fid} was born over 60 years before child id={cid}.'))
 
   return return_data
 
@@ -376,39 +380,68 @@ def validate_parent_age(fams, indis):
   Implements US13
   Sprint 2
   Luke McEvoy & Alex Rubino
-  Birth dates of siblings should be more than 8 months apart or less than 2 days apart (twins may be born one day apart, e.g. 11:59 PM and 12:02 AM the following calendar day).
+  Birth dates of siblings should be more than 8 months apart or less than 2 days apart (twins may be born one day apart, e.g. 11:59 PM and 12:02 AM the following calendar day)
+
+  Function will reject siblings that have birthdays satisfying both conditions:
+  - more than 1 day apart
+  - not less than 8 months (248 days) apart
 '''
 def validate_sibling_births(fams, indis):
   return_data = []
+  one_day = timedelta(days=1)
+  eight_mons = timedelta(days=248)
 
   for fid in fams:
-    children_birthdays = []
+    births = []
 
+    # Appends every child's birthday into the array
     for cid in fams[fid]['CHIL']:
-      # Appends every child's birthday into the array
-      children_birthdays.append((cid, indis[cid]['BIRT']))
+      if indis[cid]['BIRT'] is not None:
+        births.append((cid, utils.parse_date(indis[cid]['BIRT'])))
 
-    for i in range(0, len(children_birthdays)):
+    for i in range(len(births)):
+      for j in range(i+1, len(births)):
+        delta = abs(births[i][1] - births[j][1])
 
-      for j in range(i + 1, len(children_birthdays)):
-
-        year_difference = utils.year_difference(children_birthdays[i][1], children_birthdays[j][1])
-
-        month_difference = utils.month_difference(children_birthdays[i][1], children_birthdays[j][1])
-
-        day_difference = utils.day_difference(children_birthdays[i][1], children_birthdays[j][1])
-
-        if year_difference <= 1:
-          if month_difference in range(1,8):
-            return_data.append((fid, f'Siblings with id = {children_birthdays[i][0]} and id = {children_birthdays[j][0]} in fid = {fid} have birth dates between three days and eight months apart.'))
-          elif month_difference == 8:
-            if day_difference == 0:
-              return_data.append((fid, f'Siblings with id = {children_birthdays[i][0]} and id = {children_birthdays[j][0]} in fid = {fid} have birth dates between three days and eight months apart.'))
-          elif month_difference == 0:
-            if day_difference >= 2:
-              return_data.append((fid, f'Siblings with id = {children_birthdays[i][0]} and id = {children_birthdays[j][0]} in fid = {fid} have birth dates between three days and eight months apart.'))
+        if one_day < delta <= eight_mons:
+          return_data.append((fid, f'Siblings with id={births[i][0]} and id={births[j][0]} in fid={fid} have birth dates more than one day and not less than eight months apart.'))
 
   return return_data
+
+'''
+  Implements US14
+  Sprint 2
+  Zack Schieberl + Ben Mirtchouk
+  A family cannot give birth to sextuplets
+  Only return an error if there are more than 5 kids born on two consecutive days
+'''
+def validate_no_sextuples(fams, indis):
+  one_day = timedelta(days=1)
+
+  ret_data = []
+  for fid in fams:
+    child_births = [indis[cid]['BIRT'] for cid in fams[fid]['CHIL'] if indis[cid]['BIRT'] is not None]
+    if len(child_births) <= 5:
+      continue
+
+    birth_freq = {}
+    for birth in child_births:
+      if birth not in birth_freq:
+        birth_freq[birth] = 0
+      birth_freq[birth] += 1
+
+    dates = sorted(birth_freq.keys())
+    parsed_dates = [utils.parse_date(d) for d in dates]
+    for i in range(len(dates)):
+      count = birth_freq[dates[i]]
+      if i + 1 < len(dates) and parsed_dates[i+1] - parsed_dates[i] == one_day:
+        count = birth_freq[dates[i]] + birth_freq[dates[i+1]]
+
+      if count > 5:
+        ret_data.append((fid, f'Family id={fid} has more than 5 children born together'))
+        break
+
+  return ret_data
 
 '''
   Implements US15
@@ -433,9 +466,9 @@ def validate_no_excessive_siblings(fams, indis):
   All male members of a family should have the same last name
 '''
 def validate_all_men_have_same_last_name(fams, indis):
-  familyMen = [] 
   retData = []
   for fid in fams:
+    familyMen = []
 
     # Add all male children
     for cid in fams[fid]['CHIL']:
@@ -447,10 +480,58 @@ def validate_all_men_have_same_last_name(fams, indis):
     if fams[fid]['HUSB'] is not None:
       lastName = indis[fams[fid]['HUSB']]['NAME'].split()[-1]
       familyMen.append(lastName)
-    
-    if len(set(familyMen)) != 1:
-      retData.append((fid, f'Family id={fid} has males with a differnt last name'))
+
+    if len(set(familyMen)) > 1:
+      retData.append((fid, f'Family id={fid} has males with a different last name'))
 
   return retData
 
+'''
+  Implements US17: No marriages to descendants
 
+  A is a descendant of B iff we can reach B from A via a
+  series of one or more parent relationships
+'''
+def validate_no_descendant_marriage(fams, indis):
+  ret_data = []
+
+  for fid in fams:
+    if fams[fid]['HUSB'] is None or fams[fid]['WIFE'] is None:
+      continue
+    husb = fams[fid]['HUSB']
+    wife = fams[fid]['WIFE']
+
+    for desc, ance in [(husb, wife), (wife, husb)]:
+      if utils.is_descendant(desc, ance, fams, indis):
+        ret_data.append((fid, f'Family fid={fid} is a marriage of ancestor id={ance} and descendant id={desc}'))
+        break
+
+  return ret_data
+
+'''
+  Implements US19: First cousins should not marry
+
+  - A is a first cousin of B <-> A is a descendant of B's aunt/uncle
+                              OR B is a descendant of A's aunt/uncle
+  - A is the uncle of B      <-> one of B's parents is a sibling of A
+  - A is a sibling of B      <-> A and B CHIL tags appear in the same FAM
+'''
+def validate_no_cousin_marriage(fams, indis):
+  ret_data = []
+
+  for fid in fams:
+    if fams[fid]['HUSB'] is None or fams[fid]['WIFE'] is None:
+      continue
+    husb = fams[fid]['HUSB']
+    wife = fams[fid]['WIFE']
+
+    for id1, id2 in [(husb, wife), (wife, husb)]:
+      id1_parents = utils.get_parents(id1, fams, indis)
+      # this includes aunts as well
+      id1_uncles = [iid for pid in id1_parents for iid in utils.get_siblings(pid, fams, indis)]
+
+      if any(utils.is_descendant(id2, uncle, fams, indis) for uncle in id1_uncles):
+        ret_data.append((fid, f'Family fid={fid} is a marriage of first cousins id={husb} and id={wife}'))
+        break
+
+  return ret_data

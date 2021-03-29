@@ -1,5 +1,5 @@
 import unittest
-import validation as validation
+import validation
 import project as proj
 
 class TestMarriageAfterFourteen(unittest.TestCase):
@@ -54,7 +54,7 @@ class TestMarriageAfterFourteen(unittest.TestCase):
         # This removes all the empty lines
         return [i for i in ret if i]
 
-    
+
 
     def test_married_after_fourteen_1(self):
         ged = self.generate_fam_2(
@@ -116,4 +116,4 @@ class TestMarriageAfterFourteen(unittest.TestCase):
         output = validation.validate_marriage_after_fourteen(fams, indis)
         self.assertEqual(output, [('F1', 'Family id=F1 has marriage before age 14')])
 if __name__ == '__main__':
-    unittest.main() 
+    unittest.main()
