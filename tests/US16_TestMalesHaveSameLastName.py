@@ -1,14 +1,12 @@
-import sys
-sys.path.append('../')
 import unittest
-import validation as validation
+import validation
 import project as proj
 
 class TestMalesHaveSameLastName(unittest.TestCase):
     '''
-        Helper function which generates a minimal family of two parents 
-        and a child with a given marriage date and child birthdate. 
-        
+        Helper function which generates a minimal family of two parents
+        and a child with a given marriage date and child birthdate.
+
         Optionally takes in the family ID (which is used to generate
         individual IDs as well).
     '''
@@ -41,29 +39,29 @@ class TestMalesHaveSameLastName(unittest.TestCase):
             name1 = "Luke McEvoy",
             name2 = "Nick McEvoy",
             name3 = "Hugh McEvoy",
-            name4 = "Jackson McEvoy" 
+            name4 = "Jackson McEvoy"
         )
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_all_men_have_same_last_name(fams, indis)
         self.assertEqual(output, [])
-    
+
     def test_ok_1(self):
         ged = self.generate_fam_1(
             name1 = "Luke McEvoy",
             name2 = "Nick Jannet",
             name3 = "Hugh McEvoy",
-            name4 = "Jackson McEvoy" 
+            name4 = "Jackson McEvoy"
         )
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_all_men_have_same_last_name(fams, indis)
         self.assertEqual(output, [])
-    
+
     def test_ok_2(self):
             ged = self.generate_fam_1(
                 name1 = "Luke Maydof",
                 name2 = "Nick Maydof",
                 name3 = "Hugh Maydof",
-                name4 = "Berney Maydof" 
+                name4 = "Berney Maydof"
             )
             fams, indis = proj.parse_ged_data(ged)
             output = validation.validate_all_men_have_same_last_name(fams, indis)
@@ -74,7 +72,7 @@ class TestMalesHaveSameLastName(unittest.TestCase):
                 name1 = "Luke Apples",
                 name2 = "Nick Oranges",
                 name3 = "Hugh Watermelon",
-                name4 = "Berney Pineapple" 
+                name4 = "Berney Pineapple"
             )
             fams, indis = proj.parse_ged_data(ged)
             output = validation.validate_all_men_have_same_last_name(fams, indis)
@@ -85,7 +83,7 @@ class TestMalesHaveSameLastName(unittest.TestCase):
             name1 = "Luke Apples",
             name2 = "Nick Dog",
             name3 = "Hugh Cat",
-            name4 = "Berney Test" 
+            name4 = "Berney Test"
         )
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_all_men_have_same_last_name(fams, indis)
@@ -96,7 +94,7 @@ class TestMalesHaveSameLastName(unittest.TestCase):
                 name1 = "Luke Apples",
                 name2 = "Nick Porsche",
                 name3 = "Hugh Watermelon",
-                name4 = "Berney Tesla" 
+                name4 = "Berney Tesla"
             )
             fams, indis = proj.parse_ged_data(ged)
             output = validation.validate_all_men_have_same_last_name(fams, indis)
