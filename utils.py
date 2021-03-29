@@ -80,3 +80,21 @@ def is_descendant(cid, aid, fams, indis):
     stk += get_parents(iid, fams, indis)
 
   return False
+
+'''
+  Return multi-line string representation of list where each line contains at most 25 chars (or one list item)
+'''
+def format_list(l):
+  ret = ''
+  cur = '['
+  for i in range(len(l)):
+    sx = f'\'{l[i]}\''
+    delim = ', ' if i != len(l) - 1 else ']'
+
+    if len(cur) <= 1 or len(cur) + len(sx) + len(delim) <= 24:
+      cur += sx + delim
+    else:
+      ret += cur + '\n '
+      cur = sx + delim
+
+  return ret + cur

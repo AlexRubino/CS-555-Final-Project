@@ -9,7 +9,7 @@ def validate_dates_before_current(fams, indis):
 
   def check(date_str, is_indi, oid, date_type):
     if utils.parse_date(date_str) > utils.current_date():
-      ret_data.append((is_indi, oid, f'{date_type} {date_str} occurs in the future'))
+      ret_data.append((oid, f'{date_type} {date_str} occurs in the future'))
 
   for iid in indis:
     if indis[iid]['BIRT'] is not None:
@@ -328,7 +328,6 @@ def validate_no_bigamy(fams, indis):
 
       marriages.append((begin_date, end_date))
     marriages.sort()
-
     for i in range(len(marriages) - 1):
       int1 = marriages[i]
       int2 = marriages[i+1]
@@ -352,12 +351,14 @@ def validate_parent_age(fams, indis):
     if fams[fid]['HUSB'] is not None:
       husband_id = fams[fid]['HUSB']
       husband_birth = indis[husband_id]['BIRT']
-      husband_birthday = utils.parse_date(husband_birth)
+      if husband_birth is not None:
+        husband_birthday = utils.parse_date(husband_birth)
 
     if fams[fid]['WIFE'] is not None:
       wife_id = fams[fid]['WIFE']
       wife_birth = indis[wife_id]['BIRT']
-      wife_birthday = utils.parse_date(wife_birth)
+      if wife_birth is not None:
+        wife_birthday = utils.parse_date(wife_birth)
 
     for cid in fams[fid]['CHIL']:
       if indis[cid]['BIRT'] is not None:
@@ -366,12 +367,12 @@ def validate_parent_age(fams, indis):
         if husband_birthday is not None:
           husband_age = utils.get_age(husband_birthday, child_birthday)
           if husband_age > 80:
-            return_data.append((husband_id, f'Husband id = {husband_id} in family id = {fid} is born over 80 years before child id = {cid}.'))
+            return_data.append((husband_id, f'Husband id={husband_id} in family id={fid} was born over 80 years before child id={cid}.'))
 
         if wife_birthday is not None:
           wife_age = utils.get_age(wife_birthday, child_birthday)
           if wife_age > 60:
-            return_data.append((wife_id, f'Wife id = {wife_id} in family id = {fid} is born over 60 years before child id = {cid}.'))
+            return_data.append((wife_id, f'Wife id={wife_id} in family id={fid} was born over 60 years before child id={cid}.'))
 
   return return_data
 
@@ -465,9 +466,9 @@ def validate_no_excessive_siblings(fams, indis):
   All male members of a family should have the same last name
 '''
 def validate_all_men_have_same_last_name(fams, indis):
-  familyMen = []
   retData = []
   for fid in fams:
+    familyMen = []
 
     # Add all male children
     for cid in fams[fid]['CHIL']:
@@ -480,8 +481,8 @@ def validate_all_men_have_same_last_name(fams, indis):
       lastName = indis[fams[fid]['HUSB']]['NAME'].split()[-1]
       familyMen.append(lastName)
 
-    if len(set(familyMen)) != 1:
-      retData.append((fid, f'Family id={fid} has males with a differnt last name'))
+    if len(set(familyMen)) > 1:
+      retData.append((fid, f'Family id={fid} has males with a different last name'))
 
   return retData
 

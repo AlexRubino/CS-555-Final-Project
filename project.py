@@ -198,9 +198,9 @@ def print_tables(fams, indis):
   for fam_id in sorted(fams.keys()):
     fam_data = fams[fam_id]
     fam_table.add_row([fam_id, fam_data['MARR'] or 'NA', fam_data['DIV'] or 'NA',
-                       fam_data['HUSB'] or 'NA', indis[fam_data['HUSB']]['NAME'] or 'NA',
-                       fam_data['WIFE'] or 'NA', indis[fam_data['WIFE']]['NAME'] or 'NA',
-                       fam_data['CHIL'] if len(fam_data['CHIL']) > 0 else 'NA' ])
+                       fam_data['HUSB'] or 'NA', indis[fam_data['HUSB']]['NAME'] or 'NA' if fam_data['HUSB'] else 'NA',
+                       fam_data['WIFE'] or 'NA', indis[fam_data['WIFE']]['NAME'] or 'NA' if fam_data['WIFE'] else 'NA',
+                       utils.format_list(fam_data['CHIL']) if len(fam_data['CHIL']) > 0 else 'NA' ])
 
   indi_table = PrettyTable()
   indi_table.field_names = ['ID', 'Name', 'Gender', 'Birthday', 'Age',
@@ -227,10 +227,14 @@ def print_tables(fams, indis):
     alive = indi_data['DEAT'] is None
     indi_table.add_row([indi_id, indi_data['NAME'] or 'NA', indi_data['SEX'] or 'NA',
                         indi_data['BIRT'] or 'NA', age or 'NA', alive, indi_data['DEAT'] or 'NA',
-                        children if len(children) > 0 else 'NA', spouse or 'NA'])
+                        utils.format_list(children) if len(children) > 0 else 'NA', spouse or 'NA'])
 
   print(indi_table)
   print(fam_table)
+
+def run_validation(valid_f, log, vtype, US, fams, indis):
+  for oid, reason in valid_f(fams, indis):
+    log('%s: %s: %s: %s', vtype, US, oid, reason)
 
 def main():
   parser = argparse.ArgumentParser(description='Parse a GED file to extract \
@@ -249,22 +253,22 @@ def main():
   fams, indis = parse_ged_data(lines)
   print_tables(fams, indis)
 
-  for is_indi, oid, reason in validation.validate_dates_before_current(fams, indis):
-    logging.error('%s: US01: %s: %s', "INDIVIDUAL" if is_indi else "FAMILY", oid, reason)
-  for iid, reason in validation.validate_birth_before_marriage(fams, indis):
-    logging.error('INDIVIDUAL: US02: %s: %s', iid, reason)
-  for iid, reason in validation.validate_birth_before_death(fams, indis):
-    logging.error('INDIVIDUAL: US03: %s: %s', iid, reason)
-  for fid, reason in validation.validate_marriage_before_divorce(fams, indis):
-    logging.error('FAMILY: US04: %s: %s', fid, reason)
-  for fid, reason in validation.validate_marriage_before_death(fams, indis):
-    logging.error('FAMILY: US05: %s: %s', fid, reason)
-  for fid, reason in validation.validate_divorce_before_death(fams, indis):
-    logging.error('FAMILY: US06: %s: %s', fid, reason)
-  for iid, reason in validation.validate_reasonable_age(fams, indis):
-    logging.warning('INDIVIDUAL: US07: %s: %s', iid, reason)
-  for fid, reason in validation.validate_marriage_before_child(fams, indis):
-    logging.warning('FAMILY: US08: %s: %s', fid, reason)
+  run_validation(validation.validate_dates_before_current,        logging.error,   'DATE',       'US01', fams, indis)
+  run_validation(validation.validate_birth_before_marriage,       logging.error,   'INDIVIDUAL', 'US02', fams, indis)
+  run_validation(validation.validate_birth_before_death,          logging.error,   'INDIVIDUAL', 'US03', fams, indis)
+  run_validation(validation.validate_marriage_before_divorce,     logging.error,   'FAMILY',     'US04', fams, indis)
+  run_validation(validation.validate_marriage_before_death,       logging.error,   'FAMILY',     'US05', fams, indis)
+  run_validation(validation.validate_divorce_before_death,        logging.error,   'FAMILY',     'US06', fams, indis)
+  run_validation(validation.validate_reasonable_age,              logging.warning, 'INDIVIDUAL', 'US07', fams, indis)
+  run_validation(validation.validate_marriage_before_child,       logging.warning, 'FAMILY',     'US08', fams, indis)
+  run_validation(validation.validate_birth_before_parent_death,   logging.error,   'INDIVIDUAL', 'US09', fams, indis)
+  run_validation(validation.validate_marriage_after_fourteen,     logging.warning, 'FAMILY',     'US10', fams, indis)
+  run_validation(validation.validate_no_bigamy,                   logging.warning, 'FAMILY',     'US11', fams, indis)
+  run_validation(validation.validate_parent_age,                  logging.warning, 'INDIVIDUAL', 'US12', fams, indis)
+  run_validation(validation.validate_sibling_births,              logging.warning, 'FAMILY',     'US13', fams, indis)
+  run_validation(validation.validate_no_sextuples,                logging.warning, 'FAMILY',     'US14', fams, indis)
+  run_validation(validation.validate_no_excessive_siblings,       logging.warning, 'FAMILY',     'US15', fams, indis)
+  run_validation(validation.validate_all_men_have_same_last_name, logging.warning, 'FAMILY',     'US16', fams, indis)
 
 if __name__ == '__main__':
   main()

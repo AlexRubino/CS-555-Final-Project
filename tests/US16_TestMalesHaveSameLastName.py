@@ -76,7 +76,7 @@ class TestMalesHaveSameLastName(unittest.TestCase):
             )
             fams, indis = proj.parse_ged_data(ged)
             output = validation.validate_all_men_have_same_last_name(fams, indis)
-            self.assertEqual(output, [('F1', f'Family id=F1 has males with a differnt last name')])
+            self.assertEqual(output, [('F1', f'Family id=F1 has males with a different last name')])
 
     def test_fail_1(self):
         ged = self.generate_fam_1(
@@ -87,7 +87,7 @@ class TestMalesHaveSameLastName(unittest.TestCase):
         )
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_all_men_have_same_last_name(fams, indis)
-        self.assertEqual(output, [('F1', f'Family id=F1 has males with a differnt last name')])
+        self.assertEqual(output, [('F1', f'Family id=F1 has males with a different last name')])
 
     def test_fail_2(self):
             ged = self.generate_fam_1(
@@ -98,7 +98,7 @@ class TestMalesHaveSameLastName(unittest.TestCase):
             )
             fams, indis = proj.parse_ged_data(ged)
             output = validation.validate_all_men_have_same_last_name(fams, indis)
-            self.assertEqual(output, [('F1', f'Family id=F1 has males with a differnt last name')])
+            self.assertEqual(output, [('F1', f'Family id=F1 has males with a different last name')])
 
 
 if __name__ == '__main__':

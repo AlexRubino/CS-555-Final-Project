@@ -76,7 +76,7 @@ class TestBirthBeforeMarriage(unittest.TestCase):
         )
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_parent_age(fams, indis)
-        self.assertEqual(output, [('I1_1', 'Husband id = I1_1 in family id = F1 is born over 80 years before child id = I1_3.')])
+        self.assertEqual(output, [('I1_1', 'Husband id=I1_1 in family id=F1 was born over 80 years before child id=I1_3.')])
 
     def test3(self):
         ged = self.generate_fam_2(
@@ -86,7 +86,7 @@ class TestBirthBeforeMarriage(unittest.TestCase):
         )
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_parent_age(fams, indis)
-        self.assertEqual(output, [('I1_2', 'Wife id = I1_2 in family id = F1 is born over 60 years before child id = I1_3.')])
+        self.assertEqual(output, [('I1_2', 'Wife id=I1_2 in family id=F1 was born over 60 years before child id=I1_3.')])
 
     def test4(self):
         ged = self.generate_fam_2(
@@ -96,7 +96,7 @@ class TestBirthBeforeMarriage(unittest.TestCase):
         )
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_parent_age(fams, indis)
-        self.assertEqual(output, [(('I1_1', 'Husband id = I1_1 in family id = F1 is born over 80 years before child id = I1_3.')), ('I1_2', 'Wife id = I1_2 in family id = F1 is born over 60 years before child id = I1_3.')])
+        self.assertEqual(output, [(('I1_1', 'Husband id=I1_1 in family id=F1 was born over 80 years before child id=I1_3.')), ('I1_2', 'Wife id=I1_2 in family id=F1 was born over 60 years before child id=I1_3.')])
 
     def test5(self):
         ged = self.generate_fam_2(
@@ -106,7 +106,7 @@ class TestBirthBeforeMarriage(unittest.TestCase):
         )
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_parent_age(fams, indis)
-        self.assertEqual(output, [(('I1_1', 'Husband id = I1_1 in family id = F1 is born over 80 years before child id = I1_3.')), ('I1_2', 'Wife id = I1_2 in family id = F1 is born over 60 years before child id = I1_3.')])
+        self.assertEqual(output, [(('I1_1', 'Husband id=I1_1 in family id=F1 was born over 80 years before child id=I1_3.')), ('I1_2', 'Wife id=I1_2 in family id=F1 was born over 60 years before child id=I1_3.')])
 
 if __name__ == '__main__':
     unittest.main()

@@ -40,13 +40,13 @@ class DatesBeforeCurrent(unittest.TestCase):
         ged = self.generate_fam_1(marriage='01 JAN 4010', birth='01 JAN 2011')
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_dates_before_current(fams, indis)
-        self.assertEqual(output, [(False, 'F1', 'Marriage 4010-01-01 occurs in the future')])
+        self.assertEqual(output, [('F1', 'Marriage 4010-01-01 occurs in the future')])
 
     def test_bad_dates(self):
         ged = self.generate_fam_1(marriage='01 JAN 4010', birth='07 FEB 2102')
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_dates_before_current(fams, indis)
-        self.assertEqual(output, [(True, 'I1_3', 'Birthday 2102-02-07 occurs in the future'), (False, 'F1', 'Marriage 4010-01-01 occurs in the future')])
+        self.assertEqual(output, [('I1_3', 'Birthday 2102-02-07 occurs in the future'), ('F1', 'Marriage 4010-01-01 occurs in the future')])
 
     def test_many_bad_dates(self):
         ged1 = self.generate_fam_1(marriage='25 DEC 2101', birth='31 OCT 2102', id=1)
@@ -54,7 +54,7 @@ class DatesBeforeCurrent(unittest.TestCase):
 
         fams, indis = proj.parse_ged_data(ged1 + ged2)
         output = validation.validate_dates_before_current(fams, indis)
-        self.assertEqual(output, [(True, 'I1_3', 'Birthday 2102-10-31 occurs in the future'), (True, 'I2_3', 'Birthday 2103-02-14 occurs in the future'), (False, 'F1', 'Marriage 2101-12-25 occurs in the future'), (False, 'F2', 'Marriage 2104-12-31 occurs in the future')])
+        self.assertEqual(output, [('I1_3', 'Birthday 2102-10-31 occurs in the future'), ('I2_3', 'Birthday 2103-02-14 occurs in the future'), ('F1', 'Marriage 2101-12-25 occurs in the future'), ('F2', 'Marriage 2104-12-31 occurs in the future')])
 
 
     def test_today_tomorrow(self):
@@ -70,7 +70,7 @@ class DatesBeforeCurrent(unittest.TestCase):
 
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_dates_before_current(fams, indis)
-        self.assertEqual(output, [(True, 'I1_3', f'Birthday {stomorrow} occurs in the future')])
+        self.assertEqual(output, [('I1_3', f'Birthday {stomorrow} occurs in the future')])
 
 
 if __name__ == '__main__':
