@@ -1,12 +1,12 @@
 import unittest
-import validation as validation
+import validation
 import project as proj
 
 class TestBirthBeforeDeath(unittest.TestCase):
     '''
-        Helper function which generates a minimal family of two parents 
-        and a child with a given birthdate and child deathdate. 
-        
+        Helper function which generates a minimal family of two parents
+        and a child with a given birthdate and child deathdate.
+
         Optionally takes in the family ID (which is used to generate
         individual IDs as well).
     '''
@@ -27,7 +27,7 @@ class TestBirthBeforeDeath(unittest.TestCase):
             f'1 WIFE I{id}_2',
             f'1 CHIL I{id}_3'
         ]
-    
+
     def test1(self):
         ged = self.generate_fam_1(birth='01 JAN 1900', death='15 JAN 2020')
         fams, indis = proj.parse_ged_data(ged)
@@ -51,7 +51,7 @@ class TestBirthBeforeDeath(unittest.TestCase):
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_birth_before_death(fams, indis)
         self.assertEqual(output, [('I1_2', 'Person id=I1_2 has death before birth.')])
-    
+
     def test5(self):
         ged = self.generate_fam_1(birth='15 APR 1962', death='3 MAY 1974')
         fams, indis = proj.parse_ged_data(ged)

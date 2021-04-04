@@ -1,12 +1,12 @@
 import unittest
-import validation as validation
+import validation
 import project as proj
 
 class TestDivorceBeforeDeath(unittest.TestCase):
     '''
-        Helper function which generates a minimal family of two parents 
-        and a child with a given marriage date and child birthdate. 
-        
+        Helper function which generates a minimal family of two parents
+        and a child with a given marriage date and child birthdate.
+
         Optionally takes in the family ID (which is used to generate
         individual IDs as well).
     '''
@@ -55,11 +55,11 @@ class TestDivorceBeforeDeath(unittest.TestCase):
         ]
         # This removes all the empty lines
         return [i for i in ret if i]
-    
+
     def test_ok_order(self):
         ged = self.generate_fam_2(
-            husband=('01 JAN 2010', '01 JAN 2013'), 
-            wife=('01 JAN 2010', '01 JAN 2013'), 
+            husband=('01 JAN 2010', '01 JAN 2013'),
+            wife=('01 JAN 2010', '01 JAN 2013'),
             marriage=('01 JAN 2011', '01 JAN 2012')
         )
 
@@ -69,8 +69,8 @@ class TestDivorceBeforeDeath(unittest.TestCase):
 
     def test_bad_husband_death(self):
         ged = self.generate_fam_2(
-            husband=('01 JAN 2010', '01 JAN 2013'), 
-            wife=('01 JAN 2010', '01 JAN 2017'), 
+            husband=('01 JAN 2010', '01 JAN 2013'),
+            wife=('01 JAN 2010', '01 JAN 2017'),
             marriage=('01 JAN 2011', '01 JAN 2014')
         )
 
@@ -80,8 +80,8 @@ class TestDivorceBeforeDeath(unittest.TestCase):
 
     def test_bad_wife_death(self):
         ged = self.generate_fam_2(
-            husband=('01 JAN 2010', '01 JAN 2018'), 
-            wife=('01 JAN 2010', '01 JAN 2013'), 
+            husband=('01 JAN 2010', '01 JAN 2018'),
+            wife=('01 JAN 2010', '01 JAN 2013'),
             marriage=('01 JAN 2011', '01 JAN 2014')
         )
 
@@ -91,20 +91,20 @@ class TestDivorceBeforeDeath(unittest.TestCase):
 
     def test_bad_couple_death(self):
         ged = self.generate_fam_2(
-            husband=('01 JAN 2010', '01 JAN 2013'), 
-            wife=('01 JAN 2010', '01 JAN 2013'), 
+            husband=('01 JAN 2010', '01 JAN 2013'),
+            wife=('01 JAN 2010', '01 JAN 2013'),
             marriage=('01 JAN 2011', '01 JAN 2014')
         )
 
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_divorce_before_death(fams, indis)
-        self.assertEqual(output, [('I1_1', 'Individual id=I1_1 has a divorce after his death'), 
+        self.assertEqual(output, [('I1_1', 'Individual id=I1_1 has a divorce after his death'),
                                     ('I1_2', 'Individual id=I1_2 has a divorce after her death')])
 
     def test_live_divorce(self):
         ged = self.generate_fam_2(
-            husband=('01 JAN 2010', None), 
-            wife=('01 JAN 2010', None), 
+            husband=('01 JAN 2010', None),
+            wife=('01 JAN 2010', None),
             marriage=('01 JAN 2011', '01 JAN 2012')
         )
 

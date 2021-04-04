@@ -1,14 +1,12 @@
-import sys
-sys.path.append('../')
 import unittest
-import validation as validation
+import validation
 import project as proj
 
 class TestNoSextuplets(unittest.TestCase):
     '''
-        Helper function which generates a minimal family of two parents 
-        and a child with a given marriage date and child birthdate. 
-        
+        Helper function which generates a minimal family of two parents
+        and a child with a given marriage date and child birthdate.
+
         Optionally takes in the family ID (which is used to generate
         individual IDs as well).
     '''
@@ -41,7 +39,7 @@ class TestNoSextuplets(unittest.TestCase):
             '1 MARR',
             f'2 DATE {marriage}'
         ]
-    
+
     def test_ok_2(self):
         ged = self.generate_fam_1(
             marriage="01 JAN 2000",
@@ -202,7 +200,7 @@ class TestNoSextuplets(unittest.TestCase):
 
         fams, indis = proj.parse_ged_data(ged1 + ged2)
         output = validation.validate_no_sextuples(fams, indis)
-        self.assertEqual(output, [('F1', 'Family id=F1 has more than 5 children born together'), 
+        self.assertEqual(output, [('F1', 'Family id=F1 has more than 5 children born together'),
                                   ('F2', 'Family id=F2 has more than 5 children born together')])
 
 

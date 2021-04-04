@@ -1,12 +1,12 @@
 import unittest
-import validation as validation
+import validation
 import project as proj
 
 class TestDivorceBeforeDeath(unittest.TestCase):
     '''
-        Helper function which generates a minimal family of two parents 
-        and a child with a given marriage date and child birthdate. 
-        
+        Helper function which generates a minimal family of two parents
+        and a child with a given marriage date and child birthdate.
+
         Optionally takes in the family ID (which is used to generate
         individual IDs as well).
     '''
@@ -55,11 +55,11 @@ class TestDivorceBeforeDeath(unittest.TestCase):
         ]
         # This removes all the empty lines
         return [i for i in ret if i]
-    
+
     def test_ok_age(self):
         ged = self.generate_fam_2(
-            husband=('01 JAN 2010', '01 JAN 2013'), 
-            wife=('01 JAN 2010', '01 JAN 2013'), 
+            husband=('01 JAN 2010', '01 JAN 2013'),
+            wife=('01 JAN 2010', '01 JAN 2013'),
             marriage=(None, None)
         )
 
@@ -69,8 +69,8 @@ class TestDivorceBeforeDeath(unittest.TestCase):
 
     def test_husband_over(self):
         ged = self.generate_fam_2(
-            husband=('01 JAN 2010', '01 JAN 2213'), 
-            wife=('01 JAN 2010', '01 JAN 2013'), 
+            husband=('01 JAN 2010', '01 JAN 2213'),
+            wife=('01 JAN 2010', '01 JAN 2013'),
             marriage=(None, None)
         )
 
@@ -80,8 +80,8 @@ class TestDivorceBeforeDeath(unittest.TestCase):
 
     def test_wife_over(self):
         ged = self.generate_fam_2(
-            husband=('11 JUL 2010', '06 DEC 2013'), 
-            wife=('22 DEC 2010', '31 MAR 2213'), 
+            husband=('11 JUL 2010', '06 DEC 2013'),
+            wife=('22 DEC 2010', '31 MAR 2213'),
             marriage=(None, None)
         )
 
@@ -91,20 +91,20 @@ class TestDivorceBeforeDeath(unittest.TestCase):
 
     def test_both_over(self):
         ged = self.generate_fam_2(
-            husband=('01 JAN 2010', '01 JAN 221323542354324'), 
+            husband=('01 JAN 2010', '01 JAN 9999'),
             wife=('22 DEC 1', '31 MAR 2213'),
             marriage=(None, None)
         )
 
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_reasonable_age(fams, indis)
-        self.assertEqual(output, [('I1_1', 'Individual id=I1_1 is older than 150 years'), 
+        self.assertEqual(output, [('I1_1', 'Individual id=I1_1 is older than 150 years'),
                                   ('I1_2', 'Individual id=I1_2 is older than 150 years')])
 
     def test_ok_live(self):
         ged = self.generate_fam_2(
-            husband=('01 JAN 2010', None), 
-            wife=('01 JAN 2010', None), 
+            husband=('01 JAN 2010', None),
+            wife=('01 JAN 2010', None),
             marriage=(None, None)
         )
 
@@ -114,7 +114,7 @@ class TestDivorceBeforeDeath(unittest.TestCase):
 
     def test_bad_live(self):
         ged = self.generate_fam_2(
-            husband=('01 JAN 1577', None), 
+            husband=('01 JAN 1577', None),
             wife=('22 DEC 2010', None),
             marriage=(None, None)
         )
