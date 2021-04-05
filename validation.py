@@ -509,6 +509,35 @@ def validate_no_descendant_marriage(fams, indis):
   return ret_data
 
 '''
+  Implements US18
+  Sprint 3
+  Alex Rubino
+  Siblings should not marry
+'''
+def validate_no_sibling_marriage(fams, indis):
+  return_data = []
+
+  for fid in fams:
+    if fams[fid]['HUSB'] is None or fams[fid]['WIFE'] is None:
+      continue
+    
+    husband = fams[fid]['HUSB']
+    wife = fams[fid]['WIFE']
+
+    for id1, id2 in [(husband, wife), (wife, husband)]:
+      parents_id1 = set(utils.get_parents(id1))
+      parents_id2 = set(utils.get_parents(id2))
+
+      parents_both = parents_id1.union(parents_id2)
+
+      parents_flag = (len(parents_both) == len(parents_id1) + len(parents_id2))
+
+      if (not parents_flag):
+        return_data.append([id1, id2], "Siblings ${id1} and ${id2} should not marry.")      
+
+  return return_data
+
+'''
   Implements US19: First cousins should not marry
 
   - A is a first cousin of B <-> A is a descendant of B's aunt/uncle
@@ -535,3 +564,85 @@ def validate_no_cousin_marriage(fams, indis):
         break
 
   return ret_data
+
+'''
+  Implements US22
+  Sprint 3
+  Alex Rubino
+  All individual IDs should be unique and all family IDs should be unique
+'''
+def validate_unique_ids(fams, indis):
+  return_data = []
+  family_ids = []
+  individual_ids = []
+  family_flag = 0
+  individual_flag = 0
+
+  for fid in fams:
+    family_ids.append(fid)
+
+  for iid in indis:
+    individual_ids.append(iid)
+
+  family_flag = (len(set(family_ids)) == len(family_ids))
+  individual_flag = (len(set(individual_ids)) == len(individual_ids))
+
+  if (not family_flag):
+    return_data.append(fid, f'Family fid={fid} is not unique')
+
+  if (not individual_flag):
+    return_data.append(iid, f'Individual iid={iid} is not unique')
+
+  return return_data
+
+'''
+  Implements US23
+  Sprint 3
+  Luke McEvoy
+  No more than one individual with the same name and birth date should appear in a GEDCOM file
+'''
+def validate_different_name_birthday(fams, indis):
+  return_data = []
+
+  individual_ids = []
+  individual_flag = 0
+
+  for iid in indis:
+    name = indis[iid]['NAME']
+    birth = indis[iid]['BIRT']
+    if (name is not None) and (birth is not None):
+      birthday = utils.parse_date(birth)
+      individual_ids.append([name, birthday])
+
+  unique_data = [list(x) for x in set(tuple(x) for x in individual_ids)]
+
+  if (not unique_data):
+    return_data.append([name, birthday], f'Multiple individuals have the same name and birthday {[name, birthday]}.')
+
+  return return_data
+
+'''
+  Implements US24
+  Sprint 3
+  Luke McEvoy
+  No more than one family with the same spouses by name and the same marriage date should appear in a GEDCOM file
+'''
+def validate_different_marriage(fams, indis):
+  return_data = []
+
+  family_ids = []
+  family_flag = 0
+
+  # for fid in fams:
+  #   name = indis[iid]['NAME']
+  #   birth = indis[iid]['BIRT']
+  #   if (name is not None) and (birth is not None):
+  #     birthday = utils.parse_date(birth)
+  #     family_ids.append([name, birthday])
+
+  # unique_data = [list(x) for x in set(tuple(x) for x in family_ids)]
+
+  # if (not unique_data):
+  #   return_data.append([name, birthday], f'Multiple individuals have the same name and birthday {[name, birthday]}.')
+
+  return return_data

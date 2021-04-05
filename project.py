@@ -14,7 +14,7 @@ SUPPORTED_TAGS = {
   'comment': ['NOTE', 'HEAD', 'TRLR'],
   '0': ['INDI', 'FAM'],
   '1': ['NAME', 'SEX', 'BIRT', 'DEAT', 'FAMC', 'FAMS',
-        'MARR', 'HUSB', 'WIFE', 'CHIL', 'DIV', 'NAME'],
+        'MARR', 'HUSB', 'WIFE', 'CHIL', 'DIV'],
   '2': ['DATE']
 }
 
