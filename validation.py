@@ -533,7 +533,7 @@ def validate_no_sibling_marriage(fams, indis):
       parents_flag = (len(parents_both) == len(parents_id1) + len(parents_id2))
 
       if (not parents_flag):
-        return_data.append([id1, id2], "Siblings ${id1} and ${id2} should not marry.")      
+        return_data.append([id1, id2], f'Siblings {id1} and {id2} should not marry.')      
 
   return return_data
 
