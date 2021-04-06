@@ -631,18 +631,23 @@ def validate_different_marriage(fams, indis):
   return_data = []
 
   family_ids = []
-  family_flag = 0
+  
+  for fid in fams:
+    if fams[fid]['MARR'] is not None:
+      marriage_day = utils.parse_date(fams[fid]['MARR'])
 
-  # for fid in fams:
-  #   name = indis[iid]['NAME']
-  #   birth = indis[iid]['BIRT']
-  #   if (name is not None) and (birth is not None):
-  #     birthday = utils.parse_date(birth)
-  #     family_ids.append([name, birthday])
+      husband_id = fams[fid]['HUSB']
+      wife_id = fams[fid]['WIFE']
 
-  # unique_data = [list(x) for x in set(tuple(x) for x in family_ids)]
+      husband_name = indis[husband_id]['NAME']
+      wife_name = indis[wife_id]['NAME']
 
-  # if (not unique_data):
-  #   return_data.append([name, birthday], f'Multiple individuals have the same name and birthday {[name, birthday]}.')
+      if (husband_name is not None) and (wife_name is not None) and (marriage_day is not None):
+        family_ids.append([husband_name, wife_name, marriage_day])
+
+      unique_data = [list(x) for x in set(tuple(x) for x in family_ids)]
+
+      if (not unique_data):
+        return_data.append([husband_name, wife_name, marriage_day], f'Multiple families have the same names and marriage days {[husband_name, wife_name, marriage_day]}.')
 
   return return_data
