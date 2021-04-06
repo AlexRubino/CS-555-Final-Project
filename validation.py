@@ -591,6 +591,7 @@ def validate_unique_ids(fams, indis):
 
   family_flag = (len(set(family_ids)) == len(family_ids))
   individual_flag = (len(set(individual_ids)) == len(individual_ids))
+  print("--> ", individual_flag, individual_ids, set(individual_ids))
 
   if (not family_flag):
     return_data.append((fid, f'Family fid={fid} is not unique'))
@@ -598,6 +599,7 @@ def validate_unique_ids(fams, indis):
   if (not individual_flag):
     return_data.append((iid, f'Individual iid={iid} is not unique'))
 
+  print("-->", individual_ids)
   return return_data
 
 '''

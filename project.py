@@ -139,6 +139,45 @@ def build_ged_tree(lines):
 
   return root_nodes
 
+def get_indis_raw(root_nodes):
+  indis = {}
+  for root in root_nodes:
+    if root.tag == 'INDI':
+      indi_id = root.get_arg()
+      indi_data = { param: None for param in INDI_PARAMS }
+      indi_data['FAMS'] = []
+
+      for nd in root.children:
+        if nd.tag not in INDI_PARAMS:
+          continue
+        if nd.tag == 'FAMS':
+          indi_data[nd.tag].append(nd.get_arg())
+        else:
+          indi_data[nd.tag] = nd.get_arg()
+
+      indis[indi_id] = indi_data
+  return indis
+
+def get_fams_raw(root_nodes):
+  fams = {}
+  for root in root_nodes:
+    if root.tag == 'FAM':
+      fam_id = root.get_arg()
+      fam_data = { param: None for param in FAM_PARAMS }
+      fam_data['CHIL'] = []
+
+      for nd in root.children:
+        if nd.tag not in FAM_PARAMS:
+          continue
+        if nd.tag == 'CHIL':
+          fam_data[nd.tag].append(nd.args[0])
+        else:
+          fam_data[nd.tag] = nd.get_arg()
+
+      fams[fam_id] = fam_data
+  return fams
+
+
 def get_indis(root_nodes):
   indis = {}
   for root in root_nodes:
@@ -184,6 +223,12 @@ def get_fams(root_nodes):
 
       fams[fam_id] = fam_data
   return fams
+
+def parse_ged_data_raw(lines):
+  root_nodes = build_ged_tree(lines)
+  fams = get_fams_raw(root_nodes)
+  indis = get_indis_raw(root_nodes)
+  return fams, indis
 
 def parse_ged_data(lines):
   root_nodes = build_ged_tree(lines)

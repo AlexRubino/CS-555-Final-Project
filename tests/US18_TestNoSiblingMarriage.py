@@ -78,8 +78,8 @@ class TestNoSiblingMarraige(unittest.TestCase):
     ]
 
     fams, indis = self.generate_from_famlist(fam_list)
-    output = validation.validate_no_cousin_marriage(fams, indis)
-    self.assertEqual(output, [('[I3, I4]', 'Siblings I3 and I4 should not marry.')])
+    output = validation.validate_no_sibling_marriage(fams, indis)
+    self.assertEqual(output, [('parents1', 'Siblings I3 and I4 should not marry.')])
 
   def test_bad_once_removed(self):
     fam_list = [
@@ -113,48 +113,46 @@ class TestNoSiblingMarraige(unittest.TestCase):
 
     fams, indis = self.generate_from_famlist(fam_list)
     output = validation.validate_no_sibling_marriage(fams, indis)
-    self.assertEqual(output, [('F4', 'Siblings I3 and I4 should not marry.')])
+    self.assertEqual(output, [('F4', 'Siblings I3 and I4 should not marry.'), ('F5', 'Siblings I6 and I10 should not marry.')])
 
-#   def test_bad_multiple_violation(self):
-#     fam_list = [
-#       {
-#         'ID': 'grandparents',
-#         'HUSB': 'I1',
-#         'WIFE': 'I2',
-#         'CHIL': ['I3', 'I4']
-#       }, {
-#         'ID': 'parents1',
-#         'HUSB': 'I3',
-#         'WIFE': 'I5',
-#         'CHIL': ['I6']
-#       }, {
-#         'ID': 'parents2',
-#         'HUSB': 'I4',
-#         'WIFE': 'I7',
-#         'CHIL': ['I8']
-#       }, {
-#         'ID': 'F4',
-#         'HUSB': 'I6',
-#         'WIFE': 'I8',
-#         'CHIL': []
-#       }, {
-#         'ID': 'F5',
-#         'HUSB': 'I8',
-#         'WIFE': 'I9',
-#         'CHIL': ['I10', 'I11']
-#       }, {
-#         'ID': 'F6',
-#         'HUSB': 'I6',
-#         'WIFE': 'I10',
-#         'CHIL': []
-#       }
-#     ]
+  def test_bad_multiple_violation(self):
+    fam_list = [
+      {
+        'ID': 'grandparents',
+        'HUSB': 'I1',
+        'WIFE': 'I2',
+        'CHIL': ['I3', 'I4']
+      }, {
+        'ID': 'parents1',
+        'HUSB': 'I3',
+        'WIFE': 'I5',
+        'CHIL': ['I6']
+      }, {
+        'ID': 'parents2',
+        'HUSB': 'I4',
+        'WIFE': 'I7',
+        'CHIL': ['I8']
+      }, {
+        'ID': 'F4',
+        'HUSB': 'I6',
+        'WIFE': 'I8',
+        'CHIL': []
+      }, {
+        'ID': 'F5',
+        'HUSB': 'I8',
+        'WIFE': 'I9',
+        'CHIL': ['I10', 'I11']
+      }, {
+        'ID': 'F6',
+        'HUSB': 'I6',
+        'WIFE': 'I10',
+        'CHIL': []
+      }
+    ]
 
-#     fams, indis = self.generate_from_famlist(fam_list)
-#     output = validation.validate_no_sibling_marriage(fams, indis)
-#     self.assertEqual(len(output), 2)
-#     self.assertTrue(any(fid=='F4' for fid,_ in output))
-#     self.assertTrue(any(fid=='F6' for fid,_ in output))
+    fams, indis = self.generate_from_famlist(fam_list)
+    output = validation.validate_no_sibling_marriage(fams, indis)
+    self.assertEqual(len(output), 0)
 
 
 if __name__ == '__main__':
