@@ -524,16 +524,21 @@ def validate_no_sibling_marriage(fams, indis):
     husband = fams[fid]['HUSB']
     wife = fams[fid]['WIFE']
 
-    for id1, id2 in [(husband, wife), (wife, husband)]:
-      parents_id1 = set(utils.get_parents(id1))
-      parents_id2 = set(utils.get_parents(id2))
+    # for id1, id2 in [(husband, wife), (wife, husband)]:
+    #   parents_id1 = set(utils.get_parents(id1, fams, indis))
+    #   parents_id2 = set(utils.get_parents(id2, fams, indis))
+
+    for id1, id2 in [(husband, wife)]:
+      parents_id1 = set(utils.get_parents(id1, fams, indis))
+      parents_id2 = set(utils.get_parents(id2, fams, indis))
+
 
       parents_both = parents_id1.union(parents_id2)
 
       parents_flag = (len(parents_both) == len(parents_id1) + len(parents_id2))
 
       if (not parents_flag):
-        return_data.append([id1, id2], f'Siblings {id1} and {id2} should not marry.')      
+        return_data.append((fid, f'Siblings {id1} and {id2} should not marry.'))      
 
   return return_data
 
@@ -588,10 +593,10 @@ def validate_unique_ids(fams, indis):
   individual_flag = (len(set(individual_ids)) == len(individual_ids))
 
   if (not family_flag):
-    return_data.append(fid, f'Family fid={fid} is not unique')
+    return_data.append((fid, f'Family fid={fid} is not unique'))
 
   if (not individual_flag):
-    return_data.append(iid, f'Individual iid={iid} is not unique')
+    return_data.append((iid, f'Individual iid={iid} is not unique'))
 
   return return_data
 

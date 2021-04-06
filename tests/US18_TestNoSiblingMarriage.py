@@ -1,3 +1,5 @@
+import sys
+sys.path.append('../')
 import unittest
 import validation
 import project as proj
@@ -111,7 +113,7 @@ class TestNoSiblingMarraige(unittest.TestCase):
 
     fams, indis = self.generate_from_famlist(fam_list)
     output = validation.validate_no_sibling_marriage(fams, indis)
-    self.assertEqual(output, [('[I3, I4]', 'Siblings I3 and I4 should not marry.')])
+    self.assertEqual(output, [('F4', 'Siblings I3 and I4 should not marry.')])
 
 #   def test_bad_multiple_violation(self):
 #     fam_list = [
