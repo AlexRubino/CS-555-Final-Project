@@ -620,11 +620,13 @@ def validate_different_name_birthday(fams, indis):
     if (name is not None) and (birth is not None):
       birthday = utils.parse_date(birth)
       individual_ids.append([name, birthday])
+  
+  print(individual_ids)
 
   unique_data = [list(x) for x in set(tuple(x) for x in individual_ids)]
 
   if (not unique_data):
-    return_data.append([name, birthday], f'Multiple individuals have the same name and birthday {[name, birthday]}.')
+    return_data.append([name, birthday], f'Multiple individuals have the same name and birthday.')
 
   return return_data
 
