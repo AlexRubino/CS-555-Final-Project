@@ -139,8 +139,8 @@ def build_ged_tree(lines):
 
   return root_nodes
 
-def get_indis_raw(root_nodes):
-  indis = {}
+def get_indis_duplicates_allowed(root_nodes):
+  indis = []
   for root in root_nodes:
     if root.tag == 'INDI':
       indi_id = root.get_arg()
@@ -155,11 +155,11 @@ def get_indis_raw(root_nodes):
         else:
           indi_data[nd.tag] = nd.get_arg()
 
-      indis[indi_id] = indi_data
+      indis.append((indi_id, indi_data))
   return indis
 
-def get_fams_raw(root_nodes):
-  fams = {}
+def get_all_fams_duplicates_allowed(root_nodes):
+  fams = []
   for root in root_nodes:
     if root.tag == 'FAM':
       fam_id = root.get_arg()
@@ -174,7 +174,7 @@ def get_fams_raw(root_nodes):
         else:
           fam_data[nd.tag] = nd.get_arg()
 
-      fams[fam_id] = fam_data
+      fams.append((fam_id, fam_data))
   return fams
 
 
@@ -224,10 +224,10 @@ def get_fams(root_nodes):
       fams[fam_id] = fam_data
   return fams
 
-def parse_ged_data_raw(lines):
+def parse_ged_data_duplicates_allowed(lines):
   root_nodes = build_ged_tree(lines)
-  fams = get_fams_raw(root_nodes)
-  indis = get_indis_raw(root_nodes)
+  fams = get_all_fams_duplicates_allowed(root_nodes)
+  indis = get_indis_duplicates_allowed(root_nodes)
   return fams, indis
 
 def parse_ged_data(lines):

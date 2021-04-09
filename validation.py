@@ -577,29 +577,27 @@ def validate_no_cousin_marriage(fams, indis):
   All individual IDs should be unique and all family IDs should be unique
 '''
 def validate_unique_ids(fams, indis):
-  return_data = []
-  family_ids = []
-  individual_ids = []
-  family_flag = 0
-  individual_flag = 0
+  return_data, family_ids, individual_ids = [], [], []
+  # print("--> ", indis, fams)
 
   for fid in fams:
-    family_ids.append(fid)
+    # print("--> ",fid[0])
+    family_ids.append(fid[0])
 
   for iid in indis:
-    individual_ids.append(iid)
+    # print("--> ", iid[0])
+    individual_ids.append(iid[0])
 
-  family_flag = (len(set(family_ids)) == len(family_ids))
-  individual_flag = (len(set(individual_ids)) == len(individual_ids))
-  print("--> ", individual_flag, individual_ids, set(individual_ids))
+  duplicateIndis = (len(individual_ids) == len(set(individual_ids)))
+  duplicateFams = (len(family_ids) == len(set(family_ids)))
 
-  if (not family_flag):
-    return_data.append((fid, f'Family fid={fid} is not unique'))
+  if (not duplicateIndis):
+    return_data.append((iid[0], f'Individual iid={iid[0]} is not unique'))
 
-  if (not individual_flag):
-    return_data.append((iid, f'Individual iid={iid} is not unique'))
+  if (not duplicateFams):
+    return_data.append((fid[0], f'Family fid={fid[0]} is not unique'))
 
-  print("-->", individual_ids)
+
   return return_data
 
 '''
@@ -612,21 +610,18 @@ def validate_different_name_birthday(fams, indis):
   return_data = []
 
   individual_ids = []
-  individual_flag = 0
 
   for iid in indis:
     name = indis[iid]['NAME']
     birth = indis[iid]['BIRT']
     if (name is not None) and (birth is not None):
       birthday = utils.parse_date(birth)
-      individual_ids.append([name, birthday])
-  
-  print(individual_ids)
+      individual_ids.append((name, birthday))
 
-  unique_data = [list(x) for x in set(tuple(x) for x in individual_ids)]
+  duplicates = list(set([ele for ele in individual_ids if individual_ids.count(ele) > 1]))
 
-  if (not unique_data):
-    return_data.append([name, birthday], f'Multiple individuals have the same name and birthday.')
+  if (duplicates):
+    return_data.append(((name, utils.stringify_date(birthday)), f'Multiple individuals have the same name and birthday.'))
 
   return return_data
 
@@ -652,11 +647,11 @@ def validate_different_marriage(fams, indis):
       wife_name = indis[wife_id]['NAME']
 
       if (husband_name is not None) and (wife_name is not None) and (marriage_day is not None):
-        family_ids.append([husband_name, wife_name, marriage_day])
+        family_ids.append((husband_name, wife_name, marriage_day))
 
-      unique_data = [list(x) for x in set(tuple(x) for x in family_ids)]
+      duplicates = list(set([ele for ele in family_ids if family_ids.count(ele) > 1]))
 
-      if (not unique_data):
-        return_data.append([husband_name, wife_name, marriage_day], f'Multiple families have the same names and marriage days {[husband_name, wife_name, marriage_day]}.')
+      if (duplicates):
+        return_data.append(((husband_name, wife_name, utils.stringify_date(marriage_day)), f'Multiple families have the same names and marriage days.'))
 
   return return_data
