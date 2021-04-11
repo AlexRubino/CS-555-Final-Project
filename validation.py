@@ -521,24 +521,15 @@ def validate_no_sibling_marriage(fams, indis):
     if fams[fid]['HUSB'] is None or fams[fid]['WIFE'] is None:
       continue
 
-    husband = fams[fid]['HUSB']
+    husb = fams[fid]['HUSB']
     wife = fams[fid]['WIFE']
 
-    # for id1, id2 in [(husband, wife), (wife, husband)]:
-    #   parents_id1 = set(utils.get_parents(id1, fams, indis))
-    #   parents_id2 = set(utils.get_parents(id2, fams, indis))
+    husb_parents = utils.get_parents(husb, fams, indis)
+    wife_parents = utils.get_parents(wife, fams, indis)
 
-    for id1, id2 in [(husband, wife)]:
-      parents_id1 = set(utils.get_parents(id1, fams, indis))
-      parents_id2 = set(utils.get_parents(id2, fams, indis))
-
-
-      parents_both = parents_id1.union(parents_id2)
-
-      parents_flag = (len(parents_both) == len(parents_id1) + len(parents_id2))
-
-      if (not parents_flag):
-        return_data.append((fid, f'Siblings {id1} and {id2} should not marry.'))
+    common_parent = any(par in wife_parents for par in husb_parents)
+    if common_parent:
+      return_data.append((fid, f'Siblings {husb} and {wife} should not marry.'))
 
   return return_data
 
