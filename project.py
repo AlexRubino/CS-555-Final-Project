@@ -14,7 +14,7 @@ SUPPORTED_TAGS = {
   'comment': ['NOTE', 'HEAD', 'TRLR'],
   '0': ['INDI', 'FAM'],
   '1': ['NAME', 'SEX', 'BIRT', 'DEAT', 'FAMC', 'FAMS',
-        'MARR', 'HUSB', 'WIFE', 'CHIL', 'DIV', 'NAME'],
+        'MARR', 'HUSB', 'WIFE', 'CHIL', 'DIV'],
   '2': ['DATE']
 }
 
@@ -139,15 +139,11 @@ def build_ged_tree(lines):
 
   return root_nodes
 
-def get_indis(root_nodes):
-  indis = {}
+def get_indis_raw(root_nodes):
+  indis = []
   for root in root_nodes:
     if root.tag == 'INDI':
       indi_id = root.get_arg()
-      if indi_id in indis:
-        logging.error('duplicate INDI id %s', indi_id)
-        continue
-
       indi_data = { param: None for param in INDI_PARAMS }
       indi_data['FAMS'] = []
 
@@ -159,18 +155,14 @@ def get_indis(root_nodes):
         else:
           indi_data[nd.tag] = nd.get_arg()
 
-      indis[indi_id] = indi_data
+      indis.append((indi_id, indi_data))
   return indis
 
-def get_fams(root_nodes):
-  fams = {}
+def get_fams_raw(root_nodes):
+  fams = []
   for root in root_nodes:
     if root.tag == 'FAM':
       fam_id = root.get_arg()
-      if fam_id in fams:
-        logging.error('duplicate FAM id %s', fam_id)
-        continue
-
       fam_data = { param: None for param in FAM_PARAMS }
       fam_data['CHIL'] = []
 
@@ -182,8 +174,25 @@ def get_fams(root_nodes):
         else:
           fam_data[nd.tag] = nd.get_arg()
 
-      fams[fam_id] = fam_data
+      fams.append((fam_id, fam_data))
   return fams
+
+'''
+  Note that in the case of duplicate individual/family IDs,
+  the output of these two functions will arbitrarily shadow
+  certain individuals/families by those matching their ID.
+'''
+def get_indis(root_nodes):
+  return {iid: idata for iid, idata in get_indis_raw(root_nodes)}
+
+def get_fams(root_nodes):
+  return {fid: fdata for fid, fdata in get_fams_raw(root_nodes)}
+
+def parse_ged_data_duplicates_allowed(lines):
+  root_nodes = build_ged_tree(lines)
+  fams = get_fams_raw(root_nodes)
+  indis = get_indis_raw(root_nodes)
+  return fams, indis
 
 def parse_ged_data(lines):
   root_nodes = build_ged_tree(lines)
