@@ -66,10 +66,10 @@ class GEDNode:
       return None
 
     if len(self.args) == 0:
-      logging.error('%s node has 0 arguments where 1 was expected', self.tag)
+      logging.error('PARSE: %s node has 0 arguments where 1 was expected', self.tag)
       return None
     if len(self.args) > 1:
-      logging.warning('%s node has %d arguments where 1 was expected', self.tag, len(self.args))
+      logging.warning('PARSE: %s node has %d arguments where 1 was expected', self.tag, len(self.args))
     return self.args[0]
 
 '''
@@ -92,7 +92,7 @@ def build_ged_tree(lines):
     data = line.split()
 
     if len(data) < 2:
-      logging.warning('invalid data \'%s\'', line)
+      logging.warning('PARSE: Invalid data \'%s\'', line)
       continue
 
     level = data[0]
@@ -116,9 +116,9 @@ def build_ged_tree(lines):
       args = data[2:]
 
     if tag is None or args is None:
-      logging.warning('invalid data \'%s\'', line)
+      logging.warning('PARSE: Invalid data \'%s\'', line)
     elif not valid:
-      logging.warning('invalid tag \'%s\'', line)
+      logging.warning('PARSE: Invalid tag \'%s\'', line)
     else:
       nodes.append(GEDNode(int(level), tag, args))
 
@@ -130,7 +130,7 @@ def build_ged_tree(lines):
 
     if len(stk) > 0:
       if stk[-1].level != nd.level - 1:
-        logging.warning('level %d line follows level %d level line', nd.level, stk[-1].level)
+        logging.warning('PARSE: Ievel %d line follows level %d level line', nd.level, stk[-1].level)
       stk[-1].add_child(nd)
     else:
       root_nodes.append(nd)
@@ -253,7 +253,7 @@ def main():
   args = parser.parse_args()
 
   if not os.path.isfile(args.file):
-    logging.critical('missing file %s in cwd', args.file)
+    logging.critical('LOAD: missing file %s in cwd', args.file)
     exit(1)
 
   with open(args.file) as f:
