@@ -65,7 +65,7 @@ class TestDifferentMarriage(unittest.TestCase):
             )
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_different_marriage(fams, indis)
-        self.assertEqual(output, [(('Luke', 'Meg', '2020-01-02'), 'Multiple families have the same names and marriage days.')])
+        self.assertEqual(output, [('F1_1', 'Family id=F1_1 shares spouse names and marriage date with family id=F1_2')])
 
     def test_fail2(self):
         ged = self.generate_fam_1(
@@ -74,7 +74,7 @@ class TestDifferentMarriage(unittest.TestCase):
             )
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_different_marriage(fams, indis)
-        self.assertEqual(output, [(('Alex', 'Meg', '2000-01-02'), 'Multiple families have the same names and marriage days.')])
+        self.assertEqual(output, [('F1_1', 'Family id=F1_1 shares spouse names and marriage date with family id=F1_2')])
 
 if __name__ == '__main__':
     unittest.main()

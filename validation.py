@@ -616,25 +616,23 @@ def validate_different_name_birthday(fams, indis):
 '''
 def validate_different_marriage(fams, indis):
   return_data = []
-
-  family_ids = []
+  family_id = {}
 
   for fid in fams:
-    if fams[fid]['MARR'] is not None:
-      marriage_day = utils.parse_date(fams[fid]['MARR'])
+    husb = fams[fid]['HUSB']
+    wife = fams[fid]['WIFE']
+    marr = fams[fid]['MARR']
+    if any(x is None for x in [husb, wife, marr]):
+      continue
 
-      husband_id = fams[fid]['HUSB']
-      wife_id = fams[fid]['WIFE']
+    husb_name = indis[husb]['NAME']
+    wife_name = indis[husb]['NAME']
 
-      husband_name = indis[husband_id]['NAME']
-      wife_name = indis[wife_id]['NAME']
-
-      if (husband_name is not None) and (wife_name is not None) and (marriage_day is not None):
-        family_ids.append((husband_name, wife_name, marriage_day))
-
-      duplicates = list(set([ele for ele in family_ids if family_ids.count(ele) > 1]))
-
-      if (duplicates):
-        return_data.append(((husband_name, wife_name, utils.stringify_date(marriage_day)), f'Multiple families have the same names and marriage days.'))
+    if (husb_name is not None) and (wife_name is not None):
+      if (husb_name, wife_name, marr) in family_id:
+        first_id = family_id[(husb_name, wife_name, marr)]
+        return_data.append((first_id, f'Family id={first_id} shares spouse names and marriage date with family id={fid}'))
+      else:
+        family_id[(husb_name, wife_name, marr)] = fid
 
   return return_data
