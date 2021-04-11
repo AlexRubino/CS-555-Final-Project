@@ -51,7 +51,7 @@ class TestDifferentNameBirthday(unittest.TestCase):
             )
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_different_name_birthday(fams, indis)
-        self.assertEqual(output, [(('Alex Apple', '2000-01-01'), 'Multiple individuals have the same name and birthday.')])
+        self.assertEqual(output, [('I1_1', 'Individual id=I1_1 shares name and birth date with individual id=I1_2')])
 
     def test_fail2(self):
         ged = self.generate_fam_1(
@@ -60,7 +60,7 @@ class TestDifferentNameBirthday(unittest.TestCase):
             )
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_different_name_birthday(fams, indis)
-        self.assertEqual(output, [(('Luke Apple', '2000-01-01'), 'Multiple individuals have the same name and birthday.')])
+        self.assertEqual(output, [('I1_1', 'Individual id=I1_1 shares name and birth date with individual id=I1_2')])
 
 if __name__ == '__main__':
     unittest.main()

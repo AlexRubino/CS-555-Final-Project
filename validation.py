@@ -594,20 +594,17 @@ def validate_unique_ids(fams, indis):
 '''
 def validate_different_name_birthday(fams, indis):
   return_data = []
-
-  individual_ids = []
+  individual_id = {}
 
   for iid in indis:
     name = indis[iid]['NAME']
     birth = indis[iid]['BIRT']
     if (name is not None) and (birth is not None):
-      birthday = utils.parse_date(birth)
-      individual_ids.append((name, birthday))
-
-  duplicates = list(set([ele for ele in individual_ids if individual_ids.count(ele) > 1]))
-
-  if (duplicates):
-    return_data.append(((name, utils.stringify_date(birthday)), f'Multiple individuals have the same name and birthday.'))
+      if (name, birth) in individual_id:
+        first_id = individual_id[(name, birth)]
+        return_data.append((first_id, f'Individual id={first_id} shares name and birth date with individual id={iid}'))
+      else:
+        individual_id[(name, birth)] = iid
 
   return return_data
 
