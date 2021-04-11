@@ -139,7 +139,7 @@ def build_ged_tree(lines):
 
   return root_nodes
 
-def get_indis_duplicates_allowed(root_nodes):
+def get_indis_raw(root_nodes):
   indis = []
   for root in root_nodes:
     if root.tag == 'INDI':
@@ -158,7 +158,7 @@ def get_indis_duplicates_allowed(root_nodes):
       indis.append((indi_id, indi_data))
   return indis
 
-def get_all_fams_duplicates_allowed(root_nodes):
+def get_fams_raw(root_nodes):
   fams = []
   for root in root_nodes:
     if root.tag == 'FAM':
@@ -177,57 +177,21 @@ def get_all_fams_duplicates_allowed(root_nodes):
       fams.append((fam_id, fam_data))
   return fams
 
-
+'''
+  Note that in the case of duplicate individual/family IDs,
+  the output of these two functions will arbitrarily shadow
+  certain individuals/families by those matching their ID.
+'''
 def get_indis(root_nodes):
-  indis = {}
-  for root in root_nodes:
-    if root.tag == 'INDI':
-      indi_id = root.get_arg()
-      if indi_id in indis:
-        logging.error('duplicate INDI id %s', indi_id)
-        continue
-
-      indi_data = { param: None for param in INDI_PARAMS }
-      indi_data['FAMS'] = []
-
-      for nd in root.children:
-        if nd.tag not in INDI_PARAMS:
-          continue
-        if nd.tag == 'FAMS':
-          indi_data[nd.tag].append(nd.get_arg())
-        else:
-          indi_data[nd.tag] = nd.get_arg()
-
-      indis[indi_id] = indi_data
-  return indis
+  return {iid: idata for iid, idata in get_indis_raw(root_nodes)}
 
 def get_fams(root_nodes):
-  fams = {}
-  for root in root_nodes:
-    if root.tag == 'FAM':
-      fam_id = root.get_arg()
-      if fam_id in fams:
-        logging.error('duplicate FAM id %s', fam_id)
-        continue
-
-      fam_data = { param: None for param in FAM_PARAMS }
-      fam_data['CHIL'] = []
-
-      for nd in root.children:
-        if nd.tag not in FAM_PARAMS:
-          continue
-        if nd.tag == 'CHIL':
-          fam_data[nd.tag].append(nd.args[0])
-        else:
-          fam_data[nd.tag] = nd.get_arg()
-
-      fams[fam_id] = fam_data
-  return fams
+  return {fid: fdata for fid, fdata in get_fams_raw(root_nodes)}
 
 def parse_ged_data_duplicates_allowed(lines):
   root_nodes = build_ged_tree(lines)
-  fams = get_all_fams_duplicates_allowed(root_nodes)
-  indis = get_indis_duplicates_allowed(root_nodes)
+  fams = get_fams_raw(root_nodes)
+  indis = get_indis_raw(root_nodes)
   return fams, indis
 
 def parse_ged_data(lines):

@@ -1,5 +1,3 @@
-import sys
-sys.path.append('../')
 import unittest
 import validation
 import project as proj
@@ -46,9 +44,9 @@ class TestDifferentNameBirthday(unittest.TestCase):
 
     def test_fail1(self):
         ged = self.generate_fam_1(
-            birth1='01 JAN 2000', 
+            birth1='01 JAN 2000',
             name1='Alex Apple',
-            birth2='01 JAN 2000', 
+            birth2='01 JAN 2000',
             name2='Alex Apple',
             )
         fams, indis = proj.parse_ged_data(ged)

@@ -1,12 +1,10 @@
-import sys
-sys.path.append('../')
 import unittest
 import validation
 import project as proj
 
 class TestDifferentMarriage(unittest.TestCase):
-    def generate_fam_1(self, 
-        husbandName1, wifeName1, marriage1, 
+    def generate_fam_1(self,
+        husbandName1, wifeName1, marriage1,
         husbandName2, wifeName2, marriage2, id=1):
         return [
             f'0 I{id}_1 INDI',
@@ -35,7 +33,7 @@ class TestDifferentMarriage(unittest.TestCase):
 
     def test_valid1(self):
         ged = self.generate_fam_1(
-            husbandName1="Alex", wifeName1="Jill", marriage1="01 JAN 2000", 
+            husbandName1="Alex", wifeName1="Jill", marriage1="01 JAN 2000",
             husbandName2="Luke", wifeName2="Sof", marriage2="02 JAN 2020",
             )
         fams, indis = proj.parse_ged_data(ged)
@@ -44,7 +42,7 @@ class TestDifferentMarriage(unittest.TestCase):
 
     def test_valid2(self):
         ged = self.generate_fam_1(
-            husbandName1="Alex", wifeName1="Meg", marriage1="01 JAN 2000", 
+            husbandName1="Alex", wifeName1="Meg", marriage1="01 JAN 2000",
             husbandName2="Luke", wifeName2="Lex", marriage2="02 JAN 2020",
             )
         fams, indis = proj.parse_ged_data(ged)
@@ -53,7 +51,7 @@ class TestDifferentMarriage(unittest.TestCase):
 
     def test_valid3(self):
         ged = self.generate_fam_1(
-            husbandName1="Alex", wifeName1="Meg", marriage1="02 JAN 2020", 
+            husbandName1="Alex", wifeName1="Meg", marriage1="02 JAN 2020",
             husbandName2="Luke", wifeName2="Meg", marriage2="02 JAN 2020",
             )
         fams, indis = proj.parse_ged_data(ged)
@@ -62,7 +60,7 @@ class TestDifferentMarriage(unittest.TestCase):
 
     def test_fail1(self):
         ged = self.generate_fam_1(
-            husbandName1="Luke", wifeName1="Meg", marriage1="02 JAN 2020", 
+            husbandName1="Luke", wifeName1="Meg", marriage1="02 JAN 2020",
             husbandName2="Luke", wifeName2="Meg", marriage2="02 JAN 2020",
             )
         fams, indis = proj.parse_ged_data(ged)
@@ -71,7 +69,7 @@ class TestDifferentMarriage(unittest.TestCase):
 
     def test_fail2(self):
         ged = self.generate_fam_1(
-            husbandName1="Alex", wifeName1="Meg", marriage1="02 JAN 2000", 
+            husbandName1="Alex", wifeName1="Meg", marriage1="02 JAN 2000",
             husbandName2="Alex", wifeName2="Meg", marriage2="02 JAN 2000",
             )
         fams, indis = proj.parse_ged_data(ged)
