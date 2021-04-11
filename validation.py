@@ -520,7 +520,7 @@ def validate_no_sibling_marriage(fams, indis):
   for fid in fams:
     if fams[fid]['HUSB'] is None or fams[fid]['WIFE'] is None:
       continue
-    
+
     husband = fams[fid]['HUSB']
     wife = fams[fid]['WIFE']
 
@@ -538,7 +538,7 @@ def validate_no_sibling_marriage(fams, indis):
       parents_flag = (len(parents_both) == len(parents_id1) + len(parents_id2))
 
       if (not parents_flag):
-        return_data.append((fid, f'Siblings {id1} and {id2} should not marry.'))      
+        return_data.append((fid, f'Siblings {id1} and {id2} should not marry.'))
 
   return return_data
 
@@ -577,28 +577,23 @@ def validate_no_cousin_marriage(fams, indis):
   All individual IDs should be unique and all family IDs should be unique
 '''
 def validate_unique_ids(fams, indis):
-  return_data, family_ids, individual_ids = [], [], []
-  # print("--> ", indis, fams)
+  return_data = []
 
-  for fid in fams:
-    # print("--> ",fid[0])
-    family_ids.append(fid[0])
+  fids = set()
+  for fid, fdata in fams:
+    if fid in fids:
+      return_data.append((fid, f'Family fid={fid} is not unique'))
+    else:
+      fids.add(fid)
 
-  for iid in indis:
-    # print("--> ", iid[0])
-    individual_ids.append(iid[0])
+  iids = set()
+  for iid, idata in indis:
+    if iid in iids:
+      return_data.append((iid, f'Individual iid={iid} is not unique'))
+    else:
+      iids.add(iid)
 
-  duplicateIndis = (len(individual_ids) == len(set(individual_ids)))
-  duplicateFams = (len(family_ids) == len(set(family_ids)))
-
-  if (not duplicateIndis):
-    return_data.append((iid[0], f'Individual iid={iid[0]} is not unique'))
-
-  if (not duplicateFams):
-    return_data.append((fid[0], f'Family fid={fid[0]} is not unique'))
-
-
-  return return_data
+  return list(set(return_data))
 
 '''
   Implements US23
@@ -635,7 +630,7 @@ def validate_different_marriage(fams, indis):
   return_data = []
 
   family_ids = []
-  
+
   for fid in fams:
     if fams[fid]['MARR'] is not None:
       marriage_day = utils.parse_date(fams[fid]['MARR'])

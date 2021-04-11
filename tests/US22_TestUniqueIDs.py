@@ -68,6 +68,7 @@ class TestUniqueIDs(unittest.TestCase):
         return [
             f'0 I{id}_1 INDI',
             f'0 I{id}_2 INDI',
+            f'0 I{id}_2 INDI',
             f'0 I{id}_3 INDI',
             f'0 I{id}_3 INDI',
             f'0 F{id} FAM',
@@ -109,7 +110,12 @@ class TestUniqueIDs(unittest.TestCase):
         ged = self.generate_fam_5()
         fams, indis = proj.parse_ged_data_duplicates_allowed(ged)
         output = validation.validate_unique_ids(fams, indis)
-        self.assertEqual(output, [('I1_3', 'Individual iid=I1_3 is not unique'), ('F1', f'Family fid=F1 is not unique')])
+        output_ids = [oid for oid, reason in output]
+
+        self.assertEqual(len(output), 3)
+        self.assertTrue('I1_2' in output_ids)
+        self.assertTrue('I1_3' in output_ids)
+        self.assertTrue('F1' in output_ids)
 
 if __name__ == '__main__':
     unittest.main()
