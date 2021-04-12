@@ -562,6 +562,55 @@ def validate_no_cousin_marriage(fams, indis):
   return ret_data
 
 '''
+  Implements US20
+  Sprint 3
+  Zack Schieberl
+  Aunts and uncles should not marry their nieces or nephews
+'''
+def validate_aunts_uncles(fams, indis):
+  ret_data = []
+  # If the spouse is a descendant of a sibling, then this marriage is not allowed
+  for fid in fams:
+    if fams[fid]['HUSB'] is None or fams[fid]['WIFE'] is None:
+      continue
+    husb_id = fams[fid]['HUSB']
+    wife_id = fams[fid]['WIFE']
+
+    husb_sib = utils.get_siblings(husb_id, fams, indis)
+    if any(utils.is_descendant(wife_id, sib, fams, indis) for sib in husb_sib):
+      ret_data.append((fid, f'Family id={fid} has a marriage between an uncle and their niece'))
+
+    wife_sib = utils.get_siblings(wife_id, fams, indis)
+    if any(utils.is_descendant(husb_id, sib, fams, indis) for sib in wife_sib):
+      ret_data.append((fid, f'Family id={fid} has a marriage between an aunt and their nephew'))
+
+  return ret_data
+
+'''
+  Implements US21
+  Sprint 3
+  Zack Schieberl
+  All husbands should be male and all wives should be female
+'''
+def validate_gender_role(fams, indis):
+  ret_data = []
+
+  for fid in fams:
+    if fams[fid]['HUSB'] is not None:
+      hid = fams[fid]['HUSB']
+      gender = indis[hid]['SEX']
+      if gender != 'M':
+        ret_data.append((fid, f'Family id={fid} has a marriage where the husband id={hid} is not male'))
+
+    if fams[fid]['WIFE'] is not None:
+      wid = fams[fid]['WIFE']
+      gender = indis[wid]['SEX']
+      if gender != 'F':
+        ret_data.append((fid, f'Family id={fid} has a marriage where the wife id={wid} is not female'))
+
+  return ret_data
+
+'''
   Implements US22
   Sprint 3
   Alex Rubino
