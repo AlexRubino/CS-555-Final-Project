@@ -241,7 +241,8 @@ def print_tables(fams, indis):
   print(indi_table)
   print(fam_table)
 
-def run_validation(valid_f, log, vtype, US, fams, indis):
+def run_validation(valid_f, log, vtype, US, data):
+  fams, indis = data
   for oid, reason in valid_f(fams, indis):
     log('%s: %s: %s: %s', vtype, US, oid, reason)
 
@@ -259,25 +260,35 @@ def main():
   with open(args.file) as f:
     lines = f.readlines()
 
-  fams, indis = parse_ged_data(lines)
-  print_tables(fams, indis)
+  ged_data = parse_ged_data(lines)
+  ged_data_dup = parse_ged_data_duplicates_allowed(lines)
+  print_tables(*ged_data)
 
-  run_validation(validation.validate_dates_before_current,        logging.error,   'DATE',       'US01', fams, indis)
-  run_validation(validation.validate_birth_before_marriage,       logging.error,   'INDIVIDUAL', 'US02', fams, indis)
-  run_validation(validation.validate_birth_before_death,          logging.error,   'INDIVIDUAL', 'US03', fams, indis)
-  run_validation(validation.validate_marriage_before_divorce,     logging.error,   'FAMILY',     'US04', fams, indis)
-  run_validation(validation.validate_marriage_before_death,       logging.error,   'FAMILY',     'US05', fams, indis)
-  run_validation(validation.validate_divorce_before_death,        logging.error,   'FAMILY',     'US06', fams, indis)
-  run_validation(validation.validate_reasonable_age,              logging.warning, 'INDIVIDUAL', 'US07', fams, indis)
-  run_validation(validation.validate_marriage_before_child,       logging.warning, 'FAMILY',     'US08', fams, indis)
-  run_validation(validation.validate_birth_before_parent_death,   logging.error,   'INDIVIDUAL', 'US09', fams, indis)
-  run_validation(validation.validate_marriage_after_fourteen,     logging.warning, 'FAMILY',     'US10', fams, indis)
-  run_validation(validation.validate_no_bigamy,                   logging.warning, 'FAMILY',     'US11', fams, indis)
-  run_validation(validation.validate_parent_age,                  logging.warning, 'INDIVIDUAL', 'US12', fams, indis)
-  run_validation(validation.validate_sibling_births,              logging.warning, 'FAMILY',     'US13', fams, indis)
-  run_validation(validation.validate_no_sextuples,                logging.warning, 'FAMILY',     'US14', fams, indis)
-  run_validation(validation.validate_no_excessive_siblings,       logging.warning, 'FAMILY',     'US15', fams, indis)
-  run_validation(validation.validate_all_men_have_same_last_name, logging.warning, 'FAMILY',     'US16', fams, indis)
+  run_validation(validation.validate_dates_before_current,        logging.error,   'DATE',       'US01', ged_data)
+  run_validation(validation.validate_birth_before_marriage,       logging.error,   'INDIVIDUAL', 'US02', ged_data)
+  run_validation(validation.validate_birth_before_death,          logging.error,   'INDIVIDUAL', 'US03', ged_data)
+  run_validation(validation.validate_marriage_before_divorce,     logging.error,   'FAMILY',     'US04', ged_data)
+  run_validation(validation.validate_marriage_before_death,       logging.error,   'FAMILY',     'US05', ged_data)
+  run_validation(validation.validate_divorce_before_death,        logging.error,   'FAMILY',     'US06', ged_data)
+  run_validation(validation.validate_reasonable_age,              logging.warning, 'INDIVIDUAL', 'US07', ged_data)
+  run_validation(validation.validate_marriage_before_child,       logging.warning, 'FAMILY',     'US08', ged_data)
+  run_validation(validation.validate_birth_before_parent_death,   logging.error,   'INDIVIDUAL', 'US09', ged_data)
+  run_validation(validation.validate_marriage_after_fourteen,     logging.warning, 'FAMILY',     'US10', ged_data)
+  run_validation(validation.validate_no_bigamy,                   logging.warning, 'FAMILY',     'US11', ged_data)
+  run_validation(validation.validate_parent_age,                  logging.warning, 'INDIVIDUAL', 'US12', ged_data)
+  run_validation(validation.validate_sibling_births,              logging.warning, 'FAMILY',     'US13', ged_data)
+  run_validation(validation.validate_no_sextuples,                logging.warning, 'FAMILY',     'US14', ged_data)
+  run_validation(validation.validate_no_excessive_siblings,       logging.warning, 'FAMILY',     'US15', ged_data)
+  run_validation(validation.validate_all_men_have_same_last_name, logging.warning, 'FAMILY',     'US16', ged_data)
+
+  run_validation(validation.validate_no_descendant_marriage,      logging.warning, 'FAMILY',     'US17', ged_data)
+  run_validation(validation.validate_no_sibling_marriage,         logging.warning, 'FAMILY',     'US18', ged_data)
+  run_validation(validation.validate_no_cousin_marriage,          logging.warning, 'FAMILY',     'US19', ged_data)
+  run_validation(validation.validate_aunts_uncles,                logging.warning, 'FAMILY',     'US20', ged_data)
+  run_validation(validation.validate_gender_role,                 logging.warning, 'INDIVIDUAL', 'US21', ged_data)
+  run_validation(validation.validate_unique_ids,                  logging.error,   'ID',         'US22', ged_data_dup)
+  run_validation(validation.validate_different_name_birthday,     logging.warning, 'INDIVIDUAL', 'US23', ged_data)
+  run_validation(validation.validate_different_marriage,          logging.warning, 'FAMILY',     'US24', ged_data)
 
 if __name__ == '__main__':
   main()
