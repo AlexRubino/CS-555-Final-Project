@@ -685,3 +685,46 @@ def validate_different_marriage(fams, indis):
         family_id[(husb_name, wife_name, marr)] = fid
 
   return return_data
+
+'''
+  Implements US25
+  Sprint 4
+  Luke McEvoy + Alex Rubino
+  No more than one child with the same name and birth date should appear in a family
+'''
+def validate_different_firstname_birthday_family(fams, indis):
+  return_data = []
+  individual_id = {}
+
+
+  for fid in fams:
+    for cid in fams[fid]['CHIL']:
+      firstname = indis[cid]['NAME'].split()[0]
+      birth = indis[cid]['BIRT']
+      if (firstname is not None) and (birth is not None):
+        if (firstname, birth) in individual_id:
+          first_id = individual_id[(firstname, birth)]
+          return_data.append((first_id, f'Individual id={first_id} shares name and birth date with individual id={cid}'))
+        else:
+          individual_id[(firstname, birth)] = cid
+  return return_data
+
+'''
+  Implements US28
+  Sprint 4
+  Luke McEvoy + Alex Rubino
+  List siblings in families by decreasing age, i.e. oldest siblings first
+'''
+def sort_siblings_decreasing_age(fams, indis):
+  childrenAge = []
+
+  for fid in fams:
+    child = fams[fid]['CHIL'][0]
+    if (child is not []):
+      childBirthday = utils.parse_date(indis[child]['BIRT'])
+      childrenAge.append((child, childBirthday))
+      remainingChildren = utils.get_siblings(child, fams, indis)
+      for sibling in remainingChildren:
+        childrenAge.append((sibling, utils.parse_date(indis[sibling]['BIRT'])))
+  sortedChildren = (sorted(childrenAge, key = lambda x: x[1]))
+  return ([child[0] for child in sortedChildren])
