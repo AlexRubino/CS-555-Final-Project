@@ -685,3 +685,38 @@ def validate_different_marriage(fams, indis):
         family_id[(husb_name, wife_name, marr)] = fid
 
   return return_data
+
+'''
+  Implements US26: Corresponding entries
+
+  fams[fid] data is pulled from FAM entries
+  indis[iid] data is pulled from INDI entries
+  -> this data should be consistent
+
+'''
+def validate_corresponding_entries(fams, indis):
+  ret_data = []
+
+  for fid in fams:
+    if fams[fid]['HUSB'] is not None:
+      if fid not in indis[fams[fid]['HUSB']]['FAMS']:
+        ret_data.append((fams[fid]['HUSB'], f'Husband id={fams[fid]["HUSB"]} in family id={fid} has incomplete FAMS entry'))
+
+    if fams[fid]['WIFE'] is not None:
+      if fid not in indis[fams[fid]['WIFE']]['FAMS']:
+        ret_data.append((fams[fid]['WIFE'], f'Wife id={fams[fid]["WIFE"]} in family id={fid} has incomplete FAMS entry'))
+
+    for cid in fams[fid]['CHIL']:
+      if indis[cid]['FAMC'] != fid:
+        ret_data.append((cid, f'Child id={cid} in family id={fid} has missing or incorrect FAMC entry'))
+
+  for iid in indis:
+    if indis[iid]['FAMC'] is not None:
+      if iid not in fams[indis[iid]['FAMC']]['CHIL']:
+        ret_data.append((iid, f'Child id={iid} in family id={indis[iid]["FAMC"]} is missing from family CHIL list'))
+
+    for fid in indis[iid]['FAMS']:
+      if iid not in [fams[fid]['HUSB'], fams[fid]['WIFE']]:
+        ret_data.append((iid, f'Spouse id={iid} in family id={fid} is missing from HUSB/WIFE entry'))
+
+  return ret_data
