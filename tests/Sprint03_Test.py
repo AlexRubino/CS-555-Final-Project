@@ -9,6 +9,8 @@ sys.path.append(dirname(dirname(__file__)))
 import US17_TestNoDescendantMarriage as US17
 import US18_TestNoSiblingMarriage as US18
 import US19_TestNoCousinMarriage as US19
+import US20_TestNoUncleMarriage as US20
+import US21_TestAllCis as US21
 import US22_TestUniqueIDs as US22
 import US23_TestDifferentNameBirthday as US23
 import US24_TestDifferentMarriage as US24
@@ -20,6 +22,8 @@ def sprint03_suite():
   suite.addTests(loader.loadTestsFromModule(US17))
   suite.addTests(loader.loadTestsFromModule(US18))
   suite.addTests(loader.loadTestsFromModule(US19))
+  suite.addTests(loader.loadTestsFromModule(US20))
+  suite.addTests(loader.loadTestsFromModule(US21))
   suite.addTests(loader.loadTestsFromModule(US22))
   suite.addTests(loader.loadTestsFromModule(US23))
   suite.addTests(loader.loadTestsFromModule(US24))
