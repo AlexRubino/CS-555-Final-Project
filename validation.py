@@ -744,6 +744,7 @@ def validate_corresponding_entries(fams, indis):
 
   return ret_data
 
+'''
   Implements US28
   Sprint 4
   Luke McEvoy + Alex Rubino
