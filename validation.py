@@ -694,10 +694,9 @@ def validate_different_marriage(fams, indis):
 '''
 def validate_different_firstname_birthday_family(fams, indis):
   return_data = []
-  individual_id = {}
-
 
   for fid in fams:
+    individual_id = {}
     for cid in fams[fid]['CHIL']:
       firstname = indis[cid]['NAME'].split()[0]
       birth = indis[cid]['BIRT']
