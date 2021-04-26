@@ -782,18 +782,35 @@ def list_all_deceased(fams, indis):
   List all multiple births in GEDCOM
 '''
 def list_all_multiple_births(fams, indis):
-  birthdays = {}
-  for indi in indis:
-    birthday = indis[indi]['BIRT']
-    if (birthday is not None):
-      if (birthday not in birthdays):
-        birthdays[birthday] = 1
-      else:
-        birthdays[birthday] = birthdays[birthday] + 1
+  one_day = timedelta(days=1)
 
   ret_data = []
-  for birth in birthdays:
-    if birthdays[birth] > 1:
-      ret_data.append(birth)
+  for fid in fams:
+    child_births = [indis[cid]['BIRT'] for cid in fams[fid]['CHIL'] if indis[cid]['BIRT'] is not None]
+
+    birth_freq = {}
+    for birth in child_births:
+      if birth not in birth_freq:
+        birth_freq[birth] = 0
+      birth_freq[birth] += 1
+
+    dates = sorted(birth_freq.keys())
+    parsed_dates = [utils.parse_date(d) for d in dates]
+    used = False
+    for i in range(len(dates)):
+      if used:
+        used = False
+        continue
+
+      cur_dates = [dates[i]]
+      if i + 1 < len(dates) and parsed_dates[i+1] - parsed_dates[i] == one_day:
+        cur_dates.append(dates[i+1])
+
+      count = sum(birth_freq[d] for d in cur_dates)
+
+      if count > 1:
+        multis = [cid for cid in fams[fid]['CHIL'] if indis[cid]['BIRT'] in cur_dates]
+        ret_data.append((fid, multis))
+        used = len(cur_dates) == 2
 
   return ret_data
