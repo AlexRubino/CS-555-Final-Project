@@ -816,7 +816,7 @@ def list_married_living(fams, indis):
       if indis[wife_id]['DEAT'] is None:
         ret_data.append(wife_id)
         
-   return return_data
+  return ret_data
 
 '''
   Implements US32
