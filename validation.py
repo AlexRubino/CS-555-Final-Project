@@ -741,7 +741,7 @@ def list_all_deceased(fams, indis):
   for indi in indis:
     death = indis[indi]['DEAT']
     if death is not None:
-      deceased.append(death)
+      deceased.append(indi)
   return deceased
 
 '''
