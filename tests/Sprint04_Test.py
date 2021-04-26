@@ -11,6 +11,8 @@ import US26_TestCorrespondingEntries as US26
 import US27_TestIndividualAges as US27
 import US28_TestSortSiblings as US28
 import US29_TestListDeceased as US29
+import US30_ListMarriedLiving as US30
+import US31_ListSingleLiving as US31
 import US32_TestListMultipleBirths as US32
 
 def sprint04_suite():
@@ -22,6 +24,8 @@ def sprint04_suite():
   suite.addTests(loader.loadTestsFromModule(US27))
   suite.addTests(loader.loadTestsFromModule(US28))
   suite.addTests(loader.loadTestsFromModule(US29))
+  suite.addTests(loader.loadTestsFromModule(US30))
+  suite.addTests(loader.loadTestsFromModule(US31))
   suite.addTests(loader.loadTestsFromModule(US32))
 
   return suite

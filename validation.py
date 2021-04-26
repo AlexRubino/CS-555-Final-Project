@@ -792,7 +792,7 @@ def list_married_living(fams, indis):
       wife_id = fams[fid]['WIFE']
       if indis[wife_id]['DEAT'] is None:
         ret_data.append(wife_id)
-        
+
   return ret_data
 
 '''
@@ -803,16 +803,15 @@ def list_married_living(fams, indis):
 '''
 def list_single_living(fams, indis):
   def is_married(iid):
-    for fid in fams:
-      if fams[fid]['HUSB'] == iid or fams[fid]['WIFE'] == iid:
-        return fams[fid]['DIV'] is None
-
+    for fid in indis[iid]['FAMS']:
+      if fams[fid]['DIV'] is None:
+        return True
     return False
-  
+
   ret_data = []
 
   for iid in indis:
-    if not is_married(iid) and utils.get_age(indis[iid]['BIRT']) > 30:
+    if not is_married(iid) and (indis[iid]['BIRT'] is None or utils.get_age(indis[iid]['BIRT']) > 30):
       if indis[iid]['DEAT'] is None:
         ret_data.append(iid)
 

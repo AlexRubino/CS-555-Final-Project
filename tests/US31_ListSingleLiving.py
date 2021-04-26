@@ -16,12 +16,14 @@ class TestSingleLiving(unittest.TestCase):
         indis[fam[par]]['FAMS'].append(fid)
         indis[fam[par]]['SEX'] = 'M' if par == 'HUSB' else 'F'
         indis[fam[par]]['DEAT'] = None
+        indis[fam[par]]['BIRT'] = None
 
       for cid in fam['CHIL']:
         if cid not in indis:
           indis[cid] = {'FAMC': None, 'FAMS': []}
         indis[cid]['FAMC'] = fid
         indis[cid]['DEAT'] = None
+        indis[cid]['BIRT'] = None
 
     return fams, indis
 
