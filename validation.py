@@ -728,3 +728,40 @@ def sort_siblings_decreasing_age(fams, indis):
         childrenAge.append((sibling, utils.parse_date(indis[sibling]['BIRT'])))
   sortedChildren = (sorted(childrenAge, key = lambda x: x[1]))
   return ([child[0] for child in sortedChildren])
+
+
+'''
+  Implements US29
+  Sprint 4
+  Luke McEvoy + Alex Rubino
+  List all deceased individuals in a GEDCOM file
+'''
+def list_all_deceased(fams, indis):
+  deceased = []
+  for indi in indis:
+    death = indis[indi]['DEAT']
+    if death is not None:
+      deceased.append(death)
+  return deceased
+
+'''
+  Implements US32
+  Sprint 4
+  Luke McEvoy + Alex Rubino
+  List all multiple births in GEDCOM
+'''
+def list_all_multiple_births(fams, indis):
+  birthdays = {}
+  for indi in indis:
+    birthday = indis[indi]['BIRT']
+    if (birthday is not None):
+      if (birthday not in birthdays):
+        birthdays[birthday] = 1
+      else:
+        birthdays[birthday] = birthdays[birthday] + 1
+  
+  ret_data = []
+  for birth in birthdays:
+    if birthdays[birth] > 1:
+      ret_data.append(birth)
+  return ret_data
