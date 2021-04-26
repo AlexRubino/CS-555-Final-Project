@@ -706,6 +706,7 @@ def validate_different_firstname_birthday_family(fams, indis):
           return_data.append((first_id, f'Individual id={first_id} shares name and birth date with individual id={cid}'))
         else:
           individual_id[(firstname, birth)] = cid
+
   return return_data
 
 '''
@@ -750,19 +751,15 @@ def validate_corresponding_entries(fams, indis):
   List siblings in families by decreasing age, i.e. oldest siblings first
 '''
 def sort_siblings_decreasing_age(fams, indis):
-  childrenAge = []
+  children = {}
 
   for fid in fams:
-    child = fams[fid]['CHIL'][0]
-    if (child is not []):
-      childBirthday = utils.parse_date(indis[child]['BIRT'])
-      childrenAge.append((child, childBirthday))
-      remainingChildren = utils.get_siblings(child, fams, indis)
-      for sibling in remainingChildren:
-        childrenAge.append((sibling, utils.parse_date(indis[sibling]['BIRT'])))
-  sortedChildren = (sorted(childrenAge, key = lambda x: x[1]))
-  return ([child[0] for child in sortedChildren])
+    cids = fams[fid]['CHIL']
+    # since BIRT is stored as YYYY-MM-DD default compare is correct
+    cids.sort(key=lambda cid: indis[cid]['BIRT'])
+    children[fid] = cids
 
+  return children
 
 '''
   Implements US29
