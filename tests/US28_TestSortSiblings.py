@@ -43,8 +43,9 @@ class TestDifferentFirstnameBirthdayFamily(unittest.TestCase):
             birth4='01 JAN 2222', name4='John z',
             )
         fams, indis = proj.parse_ged_data(ged)
-        output = validation.sort_siblings_decreasing_age(fams, indis)
-        self.assertEqual(output, {'F1':['I1_3', 'I1_4']})
+        ans = {'F1':['I1_3', 'I1_4']}
+        for fid in ans:
+            self.assertEqual(validation.sort_siblings_decreasing_age(fid, fams, indis), ans[fid])
 
     def test_valid2(self):
         ged = self.generate_fam_1(
@@ -54,8 +55,9 @@ class TestDifferentFirstnameBirthdayFamily(unittest.TestCase):
             birth4='01 JAN 2012', name4='John Apple',
             )
         fams, indis = proj.parse_ged_data(ged)
-        output = validation.sort_siblings_decreasing_age(fams, indis)
-        self.assertEqual(output, {'F1':['I1_4', 'I1_3']})
+        ans = {'F1':['I1_4', 'I1_3']}
+        for fid in ans:
+            self.assertEqual(validation.sort_siblings_decreasing_age(fid, fams, indis), ans[fid])
 
     def test_valid3(self):
         ged = self.generate_fam_1(
@@ -65,8 +67,9 @@ class TestDifferentFirstnameBirthdayFamily(unittest.TestCase):
             birth4='01 JAN 2012', name4='Matt Apple',
             )
         fams, indis = proj.parse_ged_data(ged)
-        output = validation.sort_siblings_decreasing_age(fams, indis)
-        self.assertEqual(output, {'F1':['I1_3', 'I1_4']})
+        ans = {'F1':['I1_3', 'I1_4']}
+        for fid in ans:
+            self.assertEqual(validation.sort_siblings_decreasing_age(fid, fams, indis), ans[fid])
 
     def test_multifam(self):
         ged1 = self.generate_fam_1(
@@ -83,8 +86,9 @@ class TestDifferentFirstnameBirthdayFamily(unittest.TestCase):
             id=2)
 
         fams, indis = proj.parse_ged_data(ged1 + ged2)
-        output = validation.sort_siblings_decreasing_age(fams, indis)
-        self.assertEqual(output, {'F1': ['I1_3', 'I1_4'], 'F2': ['I2_4', 'I2_3']})
+        ans = {'F1': ['I1_3', 'I1_4'], 'F2': ['I2_4', 'I2_3']}
+        for fid in ans:
+            self.assertEqual(validation.sort_siblings_decreasing_age(fid, fams, indis), ans[fid])
 
 
 if __name__ == '__main__':
