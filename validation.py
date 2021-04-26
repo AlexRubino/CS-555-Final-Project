@@ -685,3 +685,46 @@ def validate_different_marriage(fams, indis):
         family_id[(husb_name, wife_name, marr)] = fid
 
   return return_data
+
+  '''
+  Implements US30
+  Sprint 4
+  Zack Schieberl
+  Lists all living individuals who are currently married
+'''
+def list_married_living(fams, indis):
+  ret_data = []
+
+  for fid in fams:
+    if fams[fid]['DIV'] is None:
+      husb_id = fams[fid]['HUSB']
+      if indis[husb_id]['DEAT'] is None:
+        ret_data.append(husb_id)
+      wife_id = fams[fid]['WIFE']
+      if indis[wife_id]['DEAT'] is None:
+        ret_data.append(wife_id)
+
+  return ret_data
+
+'''
+  Implements US31
+  Sprint 4
+  Zack Schieberl
+  Lists all living individuals who are currently single
+'''
+def list_single_living(fams, indis):
+  def is_married(iid):
+    for fid in fams:
+      if fams[fid]['HUSB'] == iid or fams[fid]['WIFE'] == iid:
+        return fams[fid]['DIV'] is None
+
+    return False
+  
+  ret_data = []
+
+  for iid in indis:
+    if not is_married(iid):
+      if indis[iid]['DEAT'] is None:
+        ret_data.append(iid)
+
+  return ret_data
