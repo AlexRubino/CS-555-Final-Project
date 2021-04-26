@@ -280,7 +280,6 @@ def main():
   run_validation(validation.validate_no_sextuples,                logging.warning, 'FAMILY',     'US14', ged_data)
   run_validation(validation.validate_no_excessive_siblings,       logging.warning, 'FAMILY',     'US15', ged_data)
   run_validation(validation.validate_all_men_have_same_last_name, logging.warning, 'FAMILY',     'US16', ged_data)
-
   run_validation(validation.validate_no_descendant_marriage,      logging.warning, 'FAMILY',     'US17', ged_data)
   run_validation(validation.validate_no_sibling_marriage,         logging.warning, 'FAMILY',     'US18', ged_data)
   run_validation(validation.validate_no_cousin_marriage,          logging.warning, 'FAMILY',     'US19', ged_data)
