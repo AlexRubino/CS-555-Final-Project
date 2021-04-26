@@ -50,7 +50,7 @@ class GEDNode:
   def get_arg(self):
     if self.tag == 'DATE':
       if len(self.args) != 3:
-        print(f'Error: DATE node has {len(self.args)} != 3 arguments')
+        logging.error('DATE: DATE node has %d != 3 arguments', len(self.args))
         return None
       return self.args[2].zfill(4) + '-' + MONTH_NUM[self.args[1]] + '-' + self.args[0].zfill(2)
 

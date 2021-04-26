@@ -687,6 +687,29 @@ def validate_different_marriage(fams, indis):
   return return_data
 
 '''
+  Implements US25
+  Sprint 4
+  Luke McEvoy + Alex Rubino
+  No more than one child with the same name and birth date should appear in a family
+'''
+def validate_different_firstname_birthday_family(fams, indis):
+  return_data = []
+
+  for fid in fams:
+    individual_id = {}
+    for cid in fams[fid]['CHIL']:
+      firstname = indis[cid]['NAME'].split()[0]
+      birth = indis[cid]['BIRT']
+      if (firstname is not None) and (birth is not None):
+        if (firstname, birth) in individual_id:
+          first_id = individual_id[(firstname, birth)]
+          return_data.append((first_id, f'Individual id={first_id} shares name and birth date with individual id={cid}'))
+        else:
+          individual_id[(firstname, birth)] = cid
+
+  return return_data
+
+'''
   Implements US26: Corresponding entries
 
   fams[fid] data is pulled from FAM entries
@@ -718,5 +741,76 @@ def validate_corresponding_entries(fams, indis):
     for fid in indis[iid]['FAMS']:
       if iid not in [fams[fid]['HUSB'], fams[fid]['WIFE']]:
         ret_data.append((iid, f'Spouse id={iid} in family id={fid} is missing from HUSB/WIFE entry'))
+
+  return ret_data
+
+'''
+  Implements US28
+  Sprint 4
+  Luke McEvoy + Alex Rubino
+  List siblings in families by decreasing age, i.e. oldest siblings first
+'''
+def sort_siblings_decreasing_age(fams, indis):
+  children = {}
+
+  for fid in fams:
+    cids = fams[fid]['CHIL']
+    # since BIRT is stored as YYYY-MM-DD default compare is correct
+    cids.sort(key=lambda cid: indis[cid]['BIRT'])
+    children[fid] = cids
+
+  return children
+
+'''
+  Implements US29
+  Sprint 4
+  Luke McEvoy + Alex Rubino
+  List all deceased individuals in a GEDCOM file
+'''
+def list_all_deceased(fams, indis):
+  deceased = []
+  for indi in indis:
+    death = indis[indi]['DEAT']
+    if death is not None:
+      deceased.append(indi)
+  return deceased
+
+'''
+  Implements US32
+  Sprint 4
+  Luke McEvoy + Alex Rubino
+  List all multiple births in GEDCOM
+'''
+def list_all_multiple_births(fams, indis):
+  one_day = timedelta(days=1)
+
+  ret_data = []
+  for fid in fams:
+    child_births = [indis[cid]['BIRT'] for cid in fams[fid]['CHIL'] if indis[cid]['BIRT'] is not None]
+
+    birth_freq = {}
+    for birth in child_births:
+      if birth not in birth_freq:
+        birth_freq[birth] = 0
+      birth_freq[birth] += 1
+
+    dates = sorted(birth_freq.keys())
+    parsed_dates = [utils.parse_date(d) for d in dates]
+    used = False
+    for i in range(len(dates)):
+      if used:
+        used = False
+        continue
+
+      cur_dates = [dates[i]]
+      if i + 1 < len(dates) and parsed_dates[i+1] - parsed_dates[i] == one_day:
+        cur_dates.append(dates[i+1])
+
+      count = sum(birth_freq[d] for d in cur_dates)
+
+      if count > 1:
+        multis = [cid for cid in fams[fid]['CHIL'] if indis[cid]['BIRT'] in cur_dates]
+        ret_data.append((fid, multis))
+        used = len(cur_dates) == 2
 
   return ret_data
