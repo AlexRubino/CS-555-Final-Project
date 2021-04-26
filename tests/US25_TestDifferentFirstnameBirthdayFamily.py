@@ -1,5 +1,3 @@
-import sys
-sys.path.append('../')
 import unittest
 import validation
 import project as proj
@@ -52,7 +50,7 @@ class TestDifferentFirstnameBirthdayFamily(unittest.TestCase):
             '1 MARR',
             f'1 HUSB I{id}_1',
             f'1 WIFE I{id}_2',
-            
+
             f'0 I{id}_3 INDI',
             f'1 NAME {name3}',
             f'1 FAMS F2',
@@ -118,7 +116,7 @@ class TestDifferentFirstnameBirthdayFamily(unittest.TestCase):
             birth1='01 JAN 1900', name1='John Apple',
             birth2='01 JAN 2000', name2='John Apple',
             birth3='01 JAN 2000', name3='John Apple',
-            birth4='01 JAN 2022', name4='John Apple',
+            birth4='01 JAN 2000', name4='John Apple',
             )
         fams, indis = proj.parse_ged_data(ged)
         output = validation.validate_different_firstname_birthday_family(fams, indis)

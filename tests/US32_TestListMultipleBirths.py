@@ -1,5 +1,3 @@
-import sys
-sys.path.append('../')
 import unittest
 import validation
 import project as proj
@@ -24,9 +22,9 @@ class TestListMultipleBirths(unittest.TestCase):
 
     def test_valid1(self):
         ged = self.generate_fam_1(
-            birth1='01 JAN 1900', 
-            birth2='01 JAN 2000', 
-            birth3='01 JAN 2000', 
+            birth1='01 JAN 1900',
+            birth2='01 JAN 2000',
+            birth3='01 JAN 2000',
             birth4='01 JAN 2000',
             )
         fams, indis = proj.parse_ged_data(ged)
@@ -36,9 +34,9 @@ class TestListMultipleBirths(unittest.TestCase):
 
     def test_valid2(self):
         ged = self.generate_fam_1(
-            birth1='01 JAN 1900', 
-            birth2='01 JAN 1900', 
-            birth3='01 JAN 2000', 
+            birth1='01 JAN 1900',
+            birth2='01 JAN 1900',
+            birth3='01 JAN 2000',
             birth4='01 JAN 2000',
             )
         fams, indis = proj.parse_ged_data(ged)
@@ -47,9 +45,9 @@ class TestListMultipleBirths(unittest.TestCase):
 
     def test_valid3(self):
         ged = self.generate_fam_1(
-            birth1='01 JAN 1900', 
-            birth2='01 JAN 1900', 
-            birth3='01 JAN 2000', 
+            birth1='01 JAN 1900',
+            birth2='01 JAN 1900',
+            birth3='01 JAN 2000',
             birth4='01 JAN 2001',
             )
         fams, indis = proj.parse_ged_data(ged)
@@ -58,9 +56,9 @@ class TestListMultipleBirths(unittest.TestCase):
 
     def test_valid4(self):
         ged = self.generate_fam_1(
-            birth1='01 JAN 1902', 
-            birth2='01 JAN 1900', 
-            birth3='01 JAN 2000', 
+            birth1='01 JAN 1902',
+            birth2='01 JAN 1900',
+            birth3='01 JAN 2000',
             birth4='01 JAN 2001',
             )
         fams, indis = proj.parse_ged_data(ged)

@@ -1,33 +1,22 @@
-import sys
-sys.path.append('../')
 import unittest
 import validation
 import project as proj
 
 class TestListDeceased(unittest.TestCase):
     def generate_fam_1(self, birth1, death1, birth2, death2, birth3, death3, birth4, death4, id=1):
-        return [
-            f'0 I{id}_1 INDI',
-            '1 BIRT',
-            f'2 DATE {birth1}',
-            '1 DEAT Y',
-            f'2 DATE {death1}',
-            f'0 I{id}_2 INDI',
-            '1 BIRT',
-            f'2 DATE {birth2}',
-            '1 DEAT Y',
-            f'2 DATE {death2}',
-            f'0 I{id}_3 INDI',
-            '1 BIRT',
-            f'2 DATE {birth3}',
-            '1 DEAT Y',
-            f'2 DATE {death3}',
-            f'0 I{id}_4 INDI',
-            '1 BIRT',
-            f'2 DATE {birth4}',
-            '1 DEAT Y',
-            f'2 DATE {death4}'
-        ]
+        data = [(birth1, death1), (birth2, death2), (birth3, death3), (birth4, death4)]
+        ret = []
+
+        for i, (birth, death) in enumerate(data):
+            ret.append(f'0 I{id}_{i+1} INDI')
+            if birth is not None:
+                ret.append('1 BIRT')
+                ret.append(f'2 DATE {birth}')
+            if death is not None:
+                ret.append('1 DEAT')
+                ret.append(f'2 DATE {death}')
+
+        return ret
 
 
     def test_valid1(self):
