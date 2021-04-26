@@ -799,7 +799,7 @@ def list_married_living(fams, indis):
   Implements US31
   Sprint 4
   Zack Schieberl
-  Lists all living individuals who are currently single
+  Lists all living individuals over 30 who are currently single
 '''
 def list_single_living(fams, indis):
   def is_married(iid):
@@ -812,7 +812,7 @@ def list_single_living(fams, indis):
   ret_data = []
 
   for iid in indis:
-    if not is_married(iid):
+    if not is_married(iid) and utils.get_age(indis[iid]['BIRT']) > 30:
       if indis[iid]['DEAT'] is None:
         ret_data.append(iid)
 
