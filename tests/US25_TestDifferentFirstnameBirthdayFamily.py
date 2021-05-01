@@ -75,7 +75,7 @@ class TestDifferentFirstnameBirthdayFamily(unittest.TestCase):
             birth4='01 JAN 2222', name4='John z',
             )
         fams, indis = proj.parse_ged_data(ged)
-        output = validation.validate_different_firstname_birthday_family(fams, indis)
+        output = validation.validate_unique_family_member_data(fams, indis)
         self.assertEqual(output, [])
 
     def test_valid2(self):
@@ -86,7 +86,7 @@ class TestDifferentFirstnameBirthdayFamily(unittest.TestCase):
             birth4='01 JAN 2222', name4='John Apple',
             )
         fams, indis = proj.parse_ged_data(ged)
-        output = validation.validate_different_firstname_birthday_family(fams, indis)
+        output = validation.validate_unique_family_member_data(fams, indis)
         self.assertEqual(output, [])
 
     def test_valid3(self):
@@ -97,7 +97,7 @@ class TestDifferentFirstnameBirthdayFamily(unittest.TestCase):
             birth4='01 JAN 2012', name4='Matt Apple',
             )
         fams, indis = proj.parse_ged_data(ged)
-        output = validation.validate_different_firstname_birthday_family(fams, indis)
+        output = validation.validate_unique_family_member_data(fams, indis)
         self.assertEqual(output, [])
 
     def test_fail1(self):
@@ -108,7 +108,7 @@ class TestDifferentFirstnameBirthdayFamily(unittest.TestCase):
             birth4='01 JAN 2012', name4='John Dice',
             )
         fams, indis = proj.parse_ged_data(ged)
-        output = validation.validate_different_firstname_birthday_family(fams, indis)
+        output = validation.validate_unique_family_member_data(fams, indis)
         self.assertEqual(output, [('I1_3','Individual id=I1_3 shares name and birth date with individual id=I1_4')])
 
     def test_fail2(self):
@@ -119,7 +119,7 @@ class TestDifferentFirstnameBirthdayFamily(unittest.TestCase):
             birth4='01 JAN 2000', name4='John Apple',
             )
         fams, indis = proj.parse_ged_data(ged)
-        output = validation.validate_different_firstname_birthday_family(fams, indis)
+        output = validation.validate_unique_family_member_data(fams, indis)
         self.assertEqual(output, [('I1_3','Individual id=I1_3 shares name and birth date with individual id=I1_4')])
 
 if __name__ == '__main__':

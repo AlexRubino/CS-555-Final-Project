@@ -200,17 +200,21 @@ def parse_ged_data(lines):
   indis = get_indis(root_nodes)
   return fams, indis
 
-def print_tables(fams, indis):
+def gen_fam_table(fams, indis):
   fam_table = PrettyTable()
   fam_table.field_names = ['ID', 'Married', 'Divorced', 'Husband ID', 'Husband Name',
                            'Wife ID', 'Wife Name', 'Children']
   for fam_id in sorted(fams.keys()):
     fam_data = fams[fam_id]
+    fam_children = validation.sort_siblings_decreasing_age(fam_id, fams, indis)
+
     fam_table.add_row([fam_id, fam_data['MARR'] or 'NA', fam_data['DIV'] or 'NA',
                        fam_data['HUSB'] or 'NA', indis[fam_data['HUSB']]['NAME'] or 'NA' if fam_data['HUSB'] else 'NA',
                        fam_data['WIFE'] or 'NA', indis[fam_data['WIFE']]['NAME'] or 'NA' if fam_data['WIFE'] else 'NA',
-                       utils.format_list(fam_data['CHIL']) if len(fam_data['CHIL']) > 0 else 'NA' ])
+                       utils.format_list(fam_children) if len(fam_children) > 0 else 'NA' ])
+  return fam_table
 
+def gen_indi_table(fams, indis):
   indi_table = PrettyTable()
   indi_table.field_names = ['ID', 'Name', 'Gender', 'Birthday', 'Age',
                             'Alive', 'Death', 'Child', 'Spouse']
@@ -237,9 +241,22 @@ def print_tables(fams, indis):
     indi_table.add_row([indi_id, indi_data['NAME'] or 'NA', indi_data['SEX'] or 'NA',
                         indi_data['BIRT'] or 'NA', age or 'NA', alive, indi_data['DEAT'] or 'NA',
                         utils.format_list(children) if len(children) > 0 else 'NA', spouse or 'NA'])
+  return indi_table
 
-  print(indi_table)
-  print(fam_table)
+def print_tables(fams, indis):
+  indi_t = gen_indi_table(fams, indis)
+  indi_t.title = 'All Individuals'
+  print(indi_t)
+  fam_t = gen_fam_table(fams, indis)
+  fam_t.title = 'All Families'
+  print(fam_t)
+
+def print_extra_table(valid_f, title, US, data):
+  fams, indis = data
+  new_indis = {iid: indis[iid] for iid in valid_f(fams, indis)}
+  t = gen_indi_table(fams, new_indis)
+  t.title = f'{US}: {title}'
+  print(t)
 
 def run_validation(valid_f, log, vtype, US, data):
   fams, indis = data
@@ -264,14 +281,20 @@ def main():
   ged_data_dup = parse_ged_data_duplicates_allowed(lines)
   print_tables(*ged_data)
 
-  run_validation(validation.validate_dates_before_current,        logging.error,   'DATE',       'US01', ged_data)
-  run_validation(validation.validate_birth_before_marriage,       logging.error,   'INDIVIDUAL', 'US02', ged_data)
-  run_validation(validation.validate_birth_before_death,          logging.error,   'INDIVIDUAL', 'US03', ged_data)
-  run_validation(validation.validate_marriage_before_divorce,     logging.error,   'FAMILY',     'US04', ged_data)
-  run_validation(validation.validate_marriage_before_death,       logging.error,   'FAMILY',     'US05', ged_data)
-  run_validation(validation.validate_divorce_before_death,        logging.error,   'FAMILY',     'US06', ged_data)
-  run_validation(validation.validate_reasonable_age,              logging.warning, 'INDIVIDUAL', 'US07', ged_data)
-  run_validation(validation.validate_marriage_before_child,       logging.warning, 'FAMILY',     'US08', ged_data)
+  print_extra_table(validation.list_all_deceased,        'All Deceased',        'US29', ged_data)
+  print_extra_table(validation.list_married_living,      'Married Living',      'US30', ged_data)
+  print_extra_table(validation.list_single_living,       'Single Living',       'US31', ged_data)
+  print_extra_table(validation.list_all_multiple_births, 'All Multiple Births', 'US32', ged_data)
+
+  run_validation(validation.validate_dates_before_current,    logging.error,   'DATE',       'US01', ged_data)
+  run_validation(validation.validate_birth_before_marriage,   logging.error,   'INDIVIDUAL', 'US02', ged_data)
+  run_validation(validation.validate_birth_before_death,      logging.error,   'INDIVIDUAL', 'US03', ged_data)
+  run_validation(validation.validate_marriage_before_divorce, logging.error,   'FAMILY',     'US04', ged_data)
+  run_validation(validation.validate_marriage_before_death,   logging.error,   'FAMILY',     'US05', ged_data)
+  run_validation(validation.validate_divorce_before_death,    logging.error,   'FAMILY',     'US06', ged_data)
+  run_validation(validation.validate_reasonable_age,          logging.warning, 'INDIVIDUAL', 'US07', ged_data)
+  run_validation(validation.validate_marriage_before_child,   logging.warning, 'FAMILY',     'US08', ged_data)
+
   run_validation(validation.validate_birth_before_parent_death,   logging.error,   'INDIVIDUAL', 'US09', ged_data)
   run_validation(validation.validate_marriage_after_fourteen,     logging.warning, 'FAMILY',     'US10', ged_data)
   run_validation(validation.validate_no_bigamy,                   logging.warning, 'FAMILY',     'US11', ged_data)
@@ -280,14 +303,18 @@ def main():
   run_validation(validation.validate_no_sextuples,                logging.warning, 'FAMILY',     'US14', ged_data)
   run_validation(validation.validate_no_excessive_siblings,       logging.warning, 'FAMILY',     'US15', ged_data)
   run_validation(validation.validate_all_men_have_same_last_name, logging.warning, 'FAMILY',     'US16', ged_data)
-  run_validation(validation.validate_no_descendant_marriage,      logging.warning, 'FAMILY',     'US17', ged_data)
-  run_validation(validation.validate_no_sibling_marriage,         logging.warning, 'FAMILY',     'US18', ged_data)
-  run_validation(validation.validate_no_cousin_marriage,          logging.warning, 'FAMILY',     'US19', ged_data)
-  run_validation(validation.validate_aunts_uncles,                logging.warning, 'FAMILY',     'US20', ged_data)
-  run_validation(validation.validate_gender_role,                 logging.warning, 'INDIVIDUAL', 'US21', ged_data)
-  run_validation(validation.validate_unique_ids,                  logging.error,   'ID',         'US22', ged_data_dup)
-  run_validation(validation.validate_different_name_birthday,     logging.warning, 'INDIVIDUAL', 'US23', ged_data)
-  run_validation(validation.validate_different_marriage,          logging.warning, 'FAMILY',     'US24', ged_data)
+
+  run_validation(validation.validate_no_descendant_marriage,  logging.warning, 'FAMILY',     'US17', ged_data)
+  run_validation(validation.validate_no_sibling_marriage,     logging.warning, 'FAMILY',     'US18', ged_data)
+  run_validation(validation.validate_no_cousin_marriage,      logging.warning, 'FAMILY',     'US19', ged_data)
+  run_validation(validation.validate_aunts_uncles,            logging.warning, 'FAMILY',     'US20', ged_data)
+  run_validation(validation.validate_gender_role,             logging.warning, 'INDIVIDUAL', 'US21', ged_data)
+  run_validation(validation.validate_unique_ids,              logging.error,   'ID',         'US22', ged_data_dup)
+  run_validation(validation.validate_different_name_birthday, logging.warning, 'INDIVIDUAL', 'US23', ged_data)
+  run_validation(validation.validate_different_marriage,      logging.warning, 'FAMILY',     'US24', ged_data)
+
+  run_validation(validation.validate_unique_family_member_data, logging.warning, 'FAMILY', 'US25', ged_data)
+  run_validation(validation.validate_corresponding_entries,     logging.warning, 'FAMILY', 'US26', ged_data)
 
 if __name__ == '__main__':
   main()

@@ -692,7 +692,7 @@ def validate_different_marriage(fams, indis):
   Luke McEvoy + Alex Rubino
   No more than one child with the same name and birth date should appear in a family
 '''
-def validate_different_firstname_birthday_family(fams, indis):
+def validate_unique_family_member_data(fams, indis):
   return_data = []
 
   for fid in fams:
@@ -750,16 +750,11 @@ def validate_corresponding_entries(fams, indis):
   Luke McEvoy + Alex Rubino
   List siblings in families by decreasing age, i.e. oldest siblings first
 '''
-def sort_siblings_decreasing_age(fams, indis):
-  children = {}
-
-  for fid in fams:
-    cids = fams[fid]['CHIL']
-    # since BIRT is stored as YYYY-MM-DD default compare is correct
-    cids.sort(key=lambda cid: indis[cid]['BIRT'])
-    children[fid] = cids
-
-  return children
+def sort_siblings_decreasing_age(fid, fams, indis):
+  cids = fams[fid]['CHIL']
+  # since BIRT is stored as YYYY-MM-DD default compare is correct
+  cids.sort(key=lambda cid: indis[cid]['BIRT'] or '0000-00-00')
+  return cids
 
 '''
   Implements US29
@@ -811,7 +806,8 @@ def list_single_living(fams, indis):
   ret_data = []
 
   for iid in indis:
-    if not is_married(iid) and (indis[iid]['BIRT'] is None or utils.get_age(indis[iid]['BIRT']) > 30):
+    if not is_married(iid) and (indis[iid]['BIRT'] is None or
+                                utils.get_age(utils.parse_date(indis[iid]['BIRT'])) > 30):
       if indis[iid]['DEAT'] is None:
         ret_data.append(iid)
 
@@ -828,32 +824,18 @@ def list_all_multiple_births(fams, indis):
 
   ret_data = []
   for fid in fams:
-    child_births = [indis[cid]['BIRT'] for cid in fams[fid]['CHIL'] if indis[cid]['BIRT'] is not None]
+    children = [(indis[cid]['BIRT'], cid) for cid in fams[fid]['CHIL']]
+    children.sort(key=lambda d: d[0] or '0000-00-00')
 
-    birth_freq = {}
-    for birth in child_births:
-      if birth not in birth_freq:
-        birth_freq[birth] = 0
-      birth_freq[birth] += 1
+    parsed_dates = [utils.parse_date(birt) if birt is not None else None for birt, _ in children]
 
-    dates = sorted(birth_freq.keys())
-    parsed_dates = [utils.parse_date(d) for d in dates]
-    used = False
-    for i in range(len(dates)):
-      if used:
-        used = False
+    for i in range(len(children)):
+      if parsed_dates[i] is None:
         continue
 
-      cur_dates = [dates[i]]
-      if i + 1 < len(dates) and parsed_dates[i+1] - parsed_dates[i] == one_day:
-        cur_dates.append(dates[i+1])
-
-      count = sum(birth_freq[d] for d in cur_dates)
-
-      if count > 1:
-        multis = [cid for cid in fams[fid]['CHIL'] if indis[cid]['BIRT'] in cur_dates]
-        ret_data.append((fid, multis))
-        used = len(cur_dates) == 2
+      if i > 0 and parsed_dates[i-1] is not None and parsed_dates[i] - parsed_dates[i-1] <= one_day or \
+         i+1 < len(children) and parsed_dates[i+1] is not None and parsed_dates[i+1] - parsed_dates[i] <= one_day:
+        ret_data.append(children[i][1])
 
   return ret_data
 
